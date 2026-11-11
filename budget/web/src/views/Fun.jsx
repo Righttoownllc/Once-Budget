@@ -2,7 +2,7 @@ import { Shell, useUI } from '../main.jsx';
 import { cashForecast } from '../features.js';
 import { verdict } from './Forecast.jsx';
 import { fmt, monthLabel } from '../budget.js';
-import { streaks, goals, BADGES, earned } from '../achievements.js';
+import { streaks, goals, BADGES, earned, MONTHLY, earnedMonthly, monthlyCounts } from '../achievements.js';
 import { catIcon } from '../icons.jsx';
 import { Help } from './Info.jsx';
 
@@ -85,8 +85,9 @@ export function Badges({ data }) {
         </div>
       </div>
       <GoalJars data={data} />
+      <MonthlyBadges data={data} />
       <div class="card badgecard">
-        <span class="eyebrow">Badges</span>
+        <span class="eyebrow">Badges · earn each once</span>
         <div class="badgegrid">
           {BADGES.map(b => (
             <div class={'badge' + (got[b.id] ? ' got' : '')}>
@@ -98,6 +99,27 @@ export function Badges({ data }) {
         </div>
       </div>
     </Shell>
+  );
+}
+/** This month's badges: each can be earned once a month, and they start over on the 1st. */
+function MonthlyBadges({ data }) {
+  const got = earnedMonthly(data), times = monthlyCounts(data);
+  const name = new Date().toLocaleString(undefined, { month: 'long' });
+  return (
+    <div class="card badgecard">
+      <span class="eyebrow">{name}'s badges · {Object.keys(got).length} of {MONTHLY.length}</span>
+      <span class="head">New every month: earn each one once in {name}, then they start over on the 1st.</span>
+      <div class="badgegrid">
+        {MONTHLY.map(b => (
+          <div class={'badge' + (got[b.id] ? ' got' : '')}>
+            <span class="bi" aria-hidden="true">{got[b.id] ? b.icon : '🔒'}</span>
+            <b>{b.title}</b>
+            <span class="head">{got[b.id] ? `Earned ${new Date(got[b.id] + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : b.hint}</span>
+            {times[b.id] > 1 && <span class="head">Earned {times[b.id]} months</span>}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 export { monthLabel };

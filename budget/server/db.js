@@ -56,6 +56,26 @@ db.exec('UPDATE transactions SET created_at = updated_at WHERE created_at IS NUL
   }
 }
 
+// v1.54: household_prefs was keyed by the setting's name alone, so two budgets on one server couldn't
+// both have a setting called, say, "badge:zero" or "payoff_category_id": the second budget's was
+// refused, and that budget kept losing it (badges awarded again and again, settings forgotten). Each
+// budget now keeps its own: the key is (household_id, id).
+{
+  const sql = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='household_prefs'").get()?.sql || '';
+  if (sql && !/PRIMARY KEY\s*\(\s*household_id\s*,\s*id\s*\)/i.test(sql)) {
+    db.exec(`BEGIN;
+      CREATE TABLE household_prefs_new (
+        id TEXT NOT NULL, household_id TEXT NOT NULL, value TEXT NOT NULL DEFAULT '',
+        updated_at INTEGER NOT NULL, deleted INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (household_id, id));
+      INSERT INTO household_prefs_new (id, household_id, value, updated_at, deleted) SELECT id, household_id, value, updated_at, deleted FROM household_prefs;
+      DROP TABLE household_prefs;
+      ALTER TABLE household_prefs_new RENAME TO household_prefs;
+      COMMIT;`);
+  }
+}
+// Settings are per budget (keyed by household and name); every other table's ids are global.
+const perBudgetKey = tbl => tbl === 'household_prefs';
+
 // Tables that participate in sync, in dependency order.
 export const SYNC_TABLES = ['accounts', 'category_groups', 'categories', 'budget_months', 'transactions', 'scheduled', 'payee_rules', 'household_prefs'];
 
@@ -92,8 +112,10 @@ export function upsert(tbl, row, householdId, actor = null) {
 
   // Ids are global; a row must never move from one budget (household) to another, which the
   // ON CONFLICT(id) update below would otherwise do. Refuse it and let the caller report it.
-  const owner = db.prepare(`SELECT household_id FROM ${tbl} WHERE id = ?`).get(clean.id);
-  if (owner && owner.household_id !== householdId) return { id: clean.id, skipped: true, conflict: 'other_budget' };
+  if (!perBudgetKey(tbl)) {
+    const owner = db.prepare(`SELECT household_id FROM ${tbl} WHERE id = ?`).get(clean.id);
+    if (owner && owner.household_id !== householdId) return { id: clean.id, skipped: true, conflict: 'other_budget' };
+  }
 
   const existing = db.prepare(`SELECT updated_at FROM ${tbl} WHERE id = ? AND household_id = ?`).get(clean.id, householdId);
   if (existing && existing.updated_at > clean.updated_at) return { id: clean.id, skipped: true };
@@ -110,8 +132,9 @@ export function upsert(tbl, row, householdId, actor = null) {
   }
 
   const keys = Object.keys(clean);
+  const pk = perBudgetKey(tbl) ? ['household_id', 'id'] : ['id'];
   const sql = `INSERT INTO ${tbl} (${keys.join(',')}) VALUES (${keys.map(k => '@' + k).join(',')})
-    ON CONFLICT(id) DO UPDATE SET ${keys.filter(k => k !== 'id').map(k => `${k}=excluded.${k}`).join(',')}`;
+    ON CONFLICT(${pk.join(', ')}) DO UPDATE SET ${keys.filter(k => !pk.includes(k)).map(k => `${k}=excluded.${k}`).join(',')}`;
   db.prepare(sql).run(clean);
   db.prepare('INSERT INTO change_log (household_id, tbl, row_id, at) VALUES (?,?,?,?)').run(householdId, tbl, clean.id, clean.updated_at);
   return { id: clean.id };
@@ -138,7 +161,7 @@ export function changesSince(householdId, cursor, limit = 2000) {
     const key = l.tbl + ':' + l.row_id;
     if (seen.has(key)) continue;
     seen.add(key);
-    const row = db.prepare(`SELECT * FROM ${l.tbl} WHERE id = ?`).get(l.row_id);
+    const row = db.prepare(`SELECT * FROM ${l.tbl} WHERE id = ? AND household_id = ?`).get(l.row_id, householdId);
     if (row) out[l.tbl].push(row);
   }
   return { cursor: last, changes: out, more: logs.length === limit };

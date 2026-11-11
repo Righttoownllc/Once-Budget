@@ -7,6 +7,9 @@ export const HOLD = '__hold__';
 // amount. It covers overspending in M-1 (that month's Ready to Assign doesn't change) and comes off
 // M's Ready to Assign. Like HOLD it's never a spendable category.
 export const BORROW = '__borrow__';
+// A borrow only counts while it's needed: it can lift the month it covers up to $0 Ready to Assign,
+// never above, so if what it covered goes away (purchases deleted, assignment lowered) it stops
+// counting instead of leaving money that doesn't exist. See monthView.
 export const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
 export const ym = d => (d ? d.toISOString() : today()).slice(0, 7);
 export const addMonths = (m, n) => {
@@ -45,7 +48,7 @@ export async function loadAll() {
   return { accounts, groups, categories, months, txs, scheduled, rules, prefs };
 }
 
-export function monthView({ accounts, groups, categories, months, txs, prefs }, month) {
+export function monthView({ accounts, groups, categories, months, txs, prefs }, month, raw = false) {
   const onBudget = new Set(accounts.filter(a => a.on_budget).map(a => a.id));
   const assignedNow = {}, assignedThrough = {}, actNow = {}, actThrough = {};
   let assignedFuture = 0, cash = 0;
@@ -53,7 +56,7 @@ export function monthView({ accounts, groups, categories, months, txs, prefs }, 
   for (const b of months) {
     if (b.month === month) assignedNow[b.category_id] = (assignedNow[b.category_id] || 0) + b.assigned;
     if (b.month <= month) assignedThrough[b.category_id] = (assignedThrough[b.category_id] || 0) + b.assigned;
-    else assignedFuture += b.assigned;
+    else if (b.category_id !== BORROW) assignedFuture += b.assigned;   // borrows: below, as much as is needed
   }
   let incomeUncat = 0;
   for (const t of txs) {
@@ -95,6 +98,14 @@ export function monthView({ accounts, groups, categories, months, txs, prefs }, 
   const heldForNext = months.filter(b => b.category_id === HOLD && b.month === next).reduce((s, b) => s + b.assigned, 0);
   const heldFromPrev = months.filter(b => b.category_id === HOLD && b.month === month).reduce((s, b) => s + b.assigned, 0);
   const sumAt = (id, m) => months.filter(b => b.category_id === id && b.month === m).reduce((s, b) => s + b.assigned, 0);
+  // Ready to Assign before any borrow from next month, then each borrow (a negative row in the month
+  // after the one it covers) counted only as far as that month needs it to reach $0.
+  const rtaRaw = cash - totalAvailable - assignedFuture;
+  const recorded = m => Math.max(0, -sumAt(BORROW, m));
+  const effective = m => { const r = recorded(m); if (!r) return 0; const before = addMonths(m, -1); return Math.min(r, Math.max(0, -(before === month ? rtaRaw : monthView({ accounts, groups, categories, months, txs, prefs }, before, true).rta_raw))); };
+  let borrowedLater = 0;
+  if (!raw) for (const m of new Set(months.filter(b => b.category_id === BORROW && b.month > next).map(b => b.month))) borrowedLater += effective(m);
+  const fromNext = raw ? 0 : effective(next);
   const byGroup = [...groups].filter(g => !g.is_income).sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name))
     .map(g => ({ id: g.id, name: g.name, rows: [], assigned: 0, activity: 0, available: 0 }));
   for (const r of rows) {
@@ -103,12 +114,13 @@ export function monthView({ accounts, groups, categories, months, txs, prefs }, 
   }
   return {
     month,
-    ready_to_assign: cash - totalAvailable - assignedFuture,
+    ready_to_assign: rtaRaw + fromNext + borrowedLater,
+    rta_raw: rtaRaw,
     assigned_future: assignedFuture,
     held_for_next: heldForNext,
     held_from_prev: heldFromPrev,
-    borrowed_from_next: -sumAt(BORROW, next),   // next month's money used to cover overspending here
-    borrowed_by_prev: -sumAt(BORROW, month),    // this month's money that covered last month's overspending
+    borrowed_from_next: fromNext,                                  // next month's money covering overspending here
+    borrowed_by_prev: raw ? 0 : effective(month),                  // this month's money that covered last month's
     cash,
     income,                                   // income categories with this month's activity
     income_total: income.reduce((s, c) => s + c.activity, 0) + (incomeUncat || 0),

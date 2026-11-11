@@ -38,7 +38,12 @@ export function moneyCheck(data, month) {
     if (b.date > addDays(a.date, 1)) break;
     if (a.account_id === b.account_id && a.amount === b.amount && a.transfer_id !== b.transfer_id) dups.push([a, b]);
   }
-  return { cash: v.cash, inCats, held, rta: v.ready_to_assign, unaccounted, overspent, payoffDebt, uncategorized, cardDebt, dups, view: v };
+  // Leftovers that no longer count: a "take from next month" bigger than what it still covers (its
+  // overspending was deleted or covered another way). Ignored by the math; listed so it can be cleared.
+  const next = addMonths(month, 1);
+  const recordedBorrow = -data.months.filter(b => b.category_id === BORROW && b.month === next && !b.deleted).reduce((s, b) => s + b.assigned, 0);
+  const staleBorrow = recordedBorrow > v.borrowed_from_next ? { month: next, recorded: recordedBorrow, used: v.borrowed_from_next, extra: recordedBorrow - v.borrowed_from_next } : null;
+  return { cash: v.cash, inCats, held, rta: v.ready_to_assign, unaccounted, overspent, payoffDebt, uncategorized, cardDebt, dups, staleBorrow, view: v };
 }
 
 // ---- 6. Spending pace ------------------------------------------------------
@@ -660,7 +665,7 @@ export function spareCategories(data, month, v = monthView(data, month)) {
 }
 
 /** Next month's money already used to cover this month's overspending (cents, positive). */
-export const borrowedFromNext = (data, month) => -data.months.filter(b => b.category_id === BORROW && b.month === addMonths(month, 1)).reduce((s, b) => s + b.assigned, 0);
+export const borrowedFromNext = (data, month) => monthView(data, month).borrowed_from_next;   // only what still counts (a stale borrow is dropped)
 
 /**
  * Covers `amount` of the overspending in categories `ids` (in order), paid from `src`: 'rta' (Ready to
@@ -717,3 +722,6 @@ export function cardPartOfOverspend(data, month, row) {
   const onCards = spendSplit(data, month, row.id).cards.filter(c => data.accounts.find(a => a.id === c.id)?.on_budget).reduce((t, c) => t + c.amount, 0);
   return Math.min(-row.available, onCards);
 }
+
+/** Clears the part of a "take from next month" that no longer covers anything. */
+export const clearStaleBorrow = sb => assign(BORROW, sb.month, -sb.used);

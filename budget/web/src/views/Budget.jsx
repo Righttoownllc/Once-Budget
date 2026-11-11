@@ -17,7 +17,7 @@ import { Icon, IconField, NameField } from './IconField.jsx';
 import { catIcon } from '../icons.jsx';
 import { Dashboard, useWidth, WIDE_MIN } from './Dashboard.jsx';
 import { overPlan, planCheck } from '../features.js';
-import { isClosedMonth, ageOfMoney, moneyCheck, pace, fillToTargets, assignLikeLastMonth, rolloverCheck, dueScheduled, postScheduled, skipScheduled, autoPostDue, perBudget, autoRoll, coverFrom, spendSplit, cardPartOfOverspend } from '../features.js';
+import { isClosedMonth, ageOfMoney, moneyCheck, pace, fillToTargets, assignLikeLastMonth, rolloverCheck, dueScheduled, postScheduled, skipScheduled, autoPostDue, perBudget, autoRoll, coverFrom, spendSplit, cardPartOfOverspend, clearStaleBorrow } from '../features.js';
 import { Help } from './Info.jsx';
 import { staleTips, TIP_REMIND_DAYS } from '../tips.js';
 import { TipClear } from './TipClear.jsx';
@@ -148,8 +148,8 @@ export function Budget({ data }) {
       <div class="card mcheck">
         <div class="row between" onClick={() => setCheckOpen(o => !o)} style="cursor:pointer">
           <span class="eyebrow">Money check <Help k="moneycheck" /></span>
-          <span class={'pill ' + (mc.unaccounted === 0 && !mc.overspent.length && !mc.uncategorized.length && !mc.cardDebt.length && !mc.dups.length && !mc.payoffDebt ? '' : 'amber')}>
-            {mc.unaccounted === 0 && !mc.overspent.length && !mc.uncategorized.length && !mc.cardDebt.length && !mc.dups.length && !mc.payoffDebt ? '✓ All accounted for' : `${mc.overspent.length + mc.uncategorized.length + mc.cardDebt.length + mc.dups.length + (mc.payoffDebt ? 1 : 0)} to fix`}
+          <span class={'pill ' + (mc.unaccounted === 0 && !mc.overspent.length && !mc.uncategorized.length && !mc.cardDebt.length && !mc.dups.length && !mc.payoffDebt && !mc.staleBorrow ? '' : 'amber')}>
+            {mc.unaccounted === 0 && !mc.overspent.length && !mc.uncategorized.length && !mc.cardDebt.length && !mc.dups.length && !mc.payoffDebt && !mc.staleBorrow ? '✓ All accounted for' : `${mc.overspent.length + mc.uncategorized.length + mc.cardDebt.length + mc.dups.length + (mc.payoffDebt ? 1 : 0) + (mc.staleBorrow ? 1 : 0)} to fix`}
           </span>
         </div>
         {checkOpen && (
@@ -266,6 +266,12 @@ export function Budget({ data }) {
             <span>{a.name}: {fmt(-uncovered)} starting debt not budgeted</span><span>View ›</span>
           </a>
         ))}
+        {mc.staleBorrow && (
+          <div class="warn amber">
+            <span>{fmt(mc.staleBorrow.extra)} taken from {monthLabel(mc.staleBorrow.month).split(' ')[0]}'s money no longer covers anything (not counted)</span>
+            <button class="ghost" style="min-height:32px;padding:4px 10px" onClick={async () => { await clearStaleBorrow(mc.staleBorrow); ui.toast('Cleared'); }}>Clear</button>
+          </div>
+        )}
       </div>
 
       <PlanCheck data={data} month={month} ui={ui} closed={closed} onOpen={id => {
@@ -625,7 +631,10 @@ function ReadySheet({ start, data, v, month, nextName, closed, onClose }) {
   const cov = coverageAll(data, month);
   const forCards = debts.filter(a => a.type === 'credit').reduce((s, a) => s + (cov[a.id]?.ready || 0), 0);
   const later = v.assigned_future;   // held for next month and any assigned to later months
-  const sum = v.ready_to_assign + inCats + later + forCards;
+  const borrowed = v.borrowed_from_next;   // next month's money already used here: not in the bank
+  const sum = v.ready_to_assign + inCats + later + forCards - borrowed;
+  const mc = moneyCheck(data, month);
+  const ui = useUI();
   const diff = bankTotal - sum;
   const L = ({ l, val: x, cls, sub }) => <div class="rl"><span>{l}{sub && <span class="head"> {sub}</span>}</span><b class={'money ' + (cls || '')}>{fmt(x)}</b></div>;
   return createPortal((
@@ -644,11 +653,18 @@ function ReadySheet({ start, data, v, month, nextName, closed, onClose }) {
           <L l="In categories" val={inCats} />
           {later > 0 && <L l={`Held for ${nextName}`} sub={later > v.held_for_next ? '(and later months)' : ''} val={later} />}
           {forCards > 0 && <L l="Set aside to pay cards" sub="(spent on a card, still in the bank)" val={forCards} />}
+          {borrowed > 0 && <L l={`Taken from ${nextName}'s money`} sub="(covered overspending; not in the bank yet)" val={-borrowed} cls="neg" />}
           <div class="rl total"><span>Should be in the bank</span><b class="money">{fmt(sum)}</b></div>
           <div class="banklist">
             {bank.map(a => <L l={a.name} val={a.balance} cls={a.balance < 0 ? 'neg' : ''} />)}
             <div class="rl total"><span>Your bank accounts</span><b class="money">{fmt(bankTotal)}</b></div>
           </div>
+          {mc.staleBorrow && (
+            <div class="warn amber col" style="align-items:stretch;gap:6px">
+              <span><b>Something doesn't add up.</b> {fmt(mc.staleBorrow.extra)} "taken from {monthLabel(mc.staleBorrow.month).split(' ')[0]}'s money" no longer covers anything: the overspending it covered was deleted or covered another way. It's not counted, so your figures here are right; clear it to tidy up.</span>
+              <button class="primary" onClick={async () => { await clearStaleBorrow(mc.staleBorrow); ui.toast('Cleared'); }}>Clear the leftover {fmt(mc.staleBorrow.extra)}</button>
+            </div>
+          )}
           {diff === 0
             ? <span class="matchok">✓ Matches your bank accounts</span>
             : <span class="matchoff">{diff > 0 ? `${fmt(diff)} more in the bank than budgeted` : `${fmt(-diff)} less in the bank than budgeted`}: usually overspending on a card, card debt not budgeted yet, or uncategorized money. Money check shows which.</span>}

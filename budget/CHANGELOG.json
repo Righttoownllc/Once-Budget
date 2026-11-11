@@ -1,5 +1,27 @@
 [
   {
+    "version": "1.54.2",
+    "date": "2026-11-10",
+    "changes": [
+      "Bank check (tap Ready to assign): money taken from next month is its own line, and a leftover one that no longer covers anything is flagged as \"Something doesn't add up\" with a button to clear it, instead of saying everything matches. The money check on the Budget tab lists it too"
+    ]
+  },
+  {
+    "version": "1.54.1",
+    "date": "2026-11-10",
+    "changes": [
+      "Fixed: money taken from next month to cover overspending kept counting after you deleted the purchases or lowered the category, adding money that didn't exist to Ready to Assign. A borrow now only counts as far as it's still needed: it never lifts Ready to Assign above $0, and next month is charged only that much"
+    ]
+  },
+  {
+    "version": "1.54.0",
+    "date": "2026-11-10",
+    "changes": [
+      "Fixed (server): a second budget on the same server couldn't keep settings whose names another budget already used, such as badges, the card payoff category, card rolling, closed months and the debt plan. They were refused and lost, so badges kept being awarded again. Each budget now keeps its own settings; existing servers are upgraded on start",
+      "Badges are awarded once and kept. New monthly badges (Every dollar placed, Targets funded, Five quiet days, Kept the log, Clean finish) can each be earned once a month and start over on the 1st"
+    ]
+  },
+  {
     "version": "1.53.2",
     "date": "2026-11-10",
     "changes": [

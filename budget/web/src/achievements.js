@@ -2,7 +2,7 @@
 // so every device agrees. Badges are remembered as budget settings ("badge:<id>" = date earned),
 // so each one is celebrated once, on whichever device earns it.
 import { monthView, ym, addMonths, balances, today, addDays } from './budget.js';
-import { ageOfMoney } from './features.js';
+import { ageOfMoney, fillToTargets } from './features.js';
 import { setPref, canChangeAll } from './store.js';
 import { confetti } from './fun.js';
 
@@ -97,7 +97,10 @@ function facts(data) {
   const emergencyCat = v.groups.flatMap(g => g.rows).find(r => /emergency/i.test(r.name));
   const monthly = spentPerMonth(data);
   let aom = null; try { aom = ageOfMoney(data)?.days ?? null; } catch {}
+  const payoffId = data.prefs?.payoff_category_id || null;
+  let targetsLeft = 0; try { targetsLeft = fillToTargets(data, ym()).filter(f => f.id !== payoffId).length; } catch {}
   return {
+    hasTargets: v.groups.some(g => g.rows.some(r => r.target > 0 && r.goal_type !== 'by_date' && r.id !== payoffId)), targetsLeft, monthDay: Number(today().slice(8)),
     rta: v.ready_to_assign, assigned: v.totals.assigned, streaks: streaks(data), goals: goals(data), aom,
     emergency: !!emergencyCat && monthly > 0 && emergencyCat.available >= monthly,
     cardPaid: debts.some(a => a.type === 'credit' && !a.closed && a.balance === 0 && hadDebt(a.id)),
@@ -105,20 +108,49 @@ function facts(data) {
   };
 }
 
+/**
+ * Monthly badges: earned at most once each month ("badge:m:<id>:<YYYY-MM>"), so there's something
+ * new to go for every month. The one-time badges above are earned once and kept.
+ */
+export const MONTHLY = [
+  { id: 'job', icon: '🎯', title: 'Every dollar placed', hint: 'Bring Ready to assign to exactly $0 this month', test: (d, x) => x.rta === 0 && x.assigned > 0 },
+  { id: 'targets', icon: '✅', title: 'Targets funded', hint: 'Fund every monthly target this month', test: (d, x) => x.hasTargets && x.targetsLeft === 0 },
+  { id: 'nospend5', icon: '🌿', title: 'Five quiet days', hint: 'Five days this month with no purchases', test: (d, x) => x.streaks.noSpend >= 5 },
+  { id: 'week', icon: '📒', title: 'Kept the log', hint: 'Log something 7 days in a row', test: (d, x) => x.streaks.logging >= 7 && x.monthDay >= 7 },
+  { id: 'clean', icon: '🛡️', title: 'Clean finish', hint: 'Last month ended with nothing overspent', test: (d, x) => x.streaks.onBudget >= 1 },
+];
+const mkey = (id, month) => `badge:m:${id}:${month}`;
+/** Monthly badges earned in `month`: { id: date }. */
+export const earnedMonthly = (data, month = ym()) => Object.fromEntries(MONTHLY.filter(b => data.prefs?.[mkey(b.id, month)]).map(b => [b.id, data.prefs[mkey(b.id, month)]]));
+/** How many months each monthly badge has been earned: { id: n }. */
+export const monthlyCounts = data => {
+  const n = {};
+  for (const k of Object.keys(data.prefs || {})) { const m = /^badge:m:([^:]+):\d{4}-\d{2}$/.exec(k); if (m) n[m[1]] = (n[m[1]] || 0) + 1; }
+  return n;
+};
+
 export const earned = data => Object.fromEntries(BADGES.filter(b => data.prefs?.['badge:' + b.id]).map(b => [b.id, data.prefs['badge:' + b.id]]));
 
 let checking = false;
+const announced = new Set();   // badge settings already celebrated on this device (never twice, even if saving failed)
 /** Awards new badges. The first time (no badges recorded yet), existing ones are awarded quietly. */
 export async function checkBadges(data, toast) {
   if (!data || checking || !data.accounts.length || !canChangeAll()) return;
-  const have = earned(data);
+  const have = earned(data), month = ym(), haveM = earnedMonthly(data, month);
   const x = facts(data);
-  const fresh = BADGES.filter(b => !have[b.id] && (() => { try { return b.test(data, x); } catch { return false; } })());
+  const pass = b => { try { return b.test(data, x); } catch { return false; } };
+  // Badges already saved are never awarded again; a monthly one only once per month.
+  const once = BADGES.filter(b => !have[b.id] && !announced.has('badge:' + b.id) && pass(b));
+  const monthly = MONTHLY.filter(b => !haveM[b.id] && !announced.has(mkey(b.id, month)) && pass(b));
+  for (const b of once) announced.add('badge:' + b.id);
+  for (const b of monthly) announced.add(mkey(b.id, month));
+  const fresh = [...once, ...monthly];
   if (!fresh.length) return;
   checking = true;
   const first = !Object.keys(have).length && !data.prefs?.['badges:init'];
   try {
-    for (const b of fresh) await setPref('badge:' + b.id, today());   // kept out of Undo history (store.js)
+    for (const b of once) await setPref('badge:' + b.id, today());   // kept out of Undo history (store.js)
+    for (const b of monthly) await setPref(mkey(b.id, month), today());
     if (first) await setPref('badges:init', today());
   } finally { checking = false; }
   if (first && fresh.length > 1) { toast(`🏅 You've already earned ${fresh.length} badges. See them under Menu › Badges`, { plain: true, win: true }); return; }

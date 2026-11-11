@@ -131,11 +131,12 @@ CREATE TABLE IF NOT EXISTS payee_rules (
 -- v1.0 ------------------------------------------------------------------
 -- Small synced key/value settings for the household (e.g. closed_through = '2026-10').
 CREATE TABLE IF NOT EXISTS household_prefs (
-  id TEXT PRIMARY KEY,            -- the key
+  id TEXT NOT NULL,               -- the setting's name; each budget has its own
   household_id TEXT NOT NULL,
   value TEXT NOT NULL DEFAULT '',
   updated_at INTEGER NOT NULL,
-  deleted INTEGER NOT NULL DEFAULT 0
+  deleted INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (household_id, id)
 );
 -- Web push subscriptions (server only, not synced).
 CREATE TABLE IF NOT EXISTS push_subs (
