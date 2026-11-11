@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   packages: write
+  actions: write   # to delete earlier runs once this one has published
 jobs:
   image:
     runs-on: ubuntu-latest
@@ -61,3 +62,10 @@ jobs:
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      # Keep only the latest build in the Actions tab: once this one has published, delete earlier runs.
+      - name: Delete earlier builds
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --paginate "repos/${{ github.repository }}/actions/runs?per_page=100" --jq '.workflow_runs[] | select(.id != ${{ github.run_id }}) | .id' |
+            while read -r id; do gh api -X DELETE "repos/${{ github.repository }}/actions/runs/$id" >/dev/null && echo "deleted run $id"; done
