@@ -696,6 +696,11 @@ export async function coverFrom(data, month, ids, src, amount, label, caps = nul
       await setPref(borrowKey(month), JSON.stringify([...kept, ...took.map(t => ({ ...t, date: today() }))]));
     }
     else if (src !== 'rta') { const s = rows.find(x => x.id === src); await assign(src, month, s.assigned - used); }
+    if (src !== 'next' && took.length) {
+      // Where each cover came from, so both categories can say so and link to each other.
+      let log = []; try { log = JSON.parse(data.prefs?.[coverKey(month)] || '[]'); } catch {}
+      await setPref(coverKey(month), JSON.stringify([...log, ...took.map(t => ({ to: t.cat, from: src, amount: t.amount, date: today() }))].slice(-60)));
+    }
     return used;
   } finally { endBatch(); }
 }
@@ -771,3 +776,17 @@ export async function undoBorrow(data, month, item) {
     await setPref(borrowKey(month), JSON.stringify(items.filter(x => x !== items.find(y => y.cat === item.cat && y.date === item.date)).filter(x => x.owed > 0 && x.cat).map(x => ({ cat: x.cat, amount: x.owed, date: x.date }))));
   } finally { endBatch(); }
 }
+
+// ---- Where covers came from ------------------------------------------------------
+/** household_prefs "covers:<month>": [{ to, from ('rta' or a category id), amount, date }], newest last. */
+export const coverKey = month => 'covers:' + month;
+/** This month's covers into and out of a category: { got: [...], gave: [...] } (newest first). */
+export function coverNotes(data, month, catId) {
+  let log = []; try { log = JSON.parse(data.prefs?.[coverKey(month)] || '[]'); } catch {}
+  const name = id => (id === 'rta' ? 'Ready to assign' : data.categories.find(c => c.id === id)?.name || 'a deleted category');
+  const got = log.filter(x => x.to === catId).map(x => ({ ...x, other: x.from, otherName: name(x.from) })).reverse();
+  const gave = log.filter(x => x.from === catId).map(x => ({ ...x, other: x.to, otherName: name(x.to) })).reverse();
+  return { got, gave };
+}
+/** Opens a category on the Budget tab (in `month`), from anywhere on it. */
+export const goCat = (id, month) => dispatchEvent(new CustomEvent('budget:gocat', { detail: { id, month } }));

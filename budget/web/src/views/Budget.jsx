@@ -17,7 +17,7 @@ import { Icon, IconField, NameField } from './IconField.jsx';
 import { catIcon } from '../icons.jsx';
 import { Dashboard, useWidth, WIDE_MIN } from './Dashboard.jsx';
 import { overPlan, planCheck } from '../features.js';
-import { isClosedMonth, ageOfMoney, moneyCheck, pace, fillToTargets, assignLikeLastMonth, rolloverCheck, dueScheduled, postScheduled, skipScheduled, autoPostDue, perBudget, autoRoll, coverFrom, spendSplit, cardPartOfOverspend, clearStaleBorrow, borrowItems, undoBorrow } from '../features.js';
+import { isClosedMonth, ageOfMoney, moneyCheck, pace, fillToTargets, assignLikeLastMonth, rolloverCheck, dueScheduled, postScheduled, skipScheduled, autoPostDue, perBudget, autoRoll, coverFrom, spendSplit, cardPartOfOverspend, clearStaleBorrow, borrowItems, undoBorrow, coverNotes, goCat } from '../features.js';
 import { Help } from './Info.jsx';
 import { staleTips, TIP_REMIND_DAYS } from '../tips.js';
 import { TipClear } from './TipClear.jsx';
@@ -54,6 +54,19 @@ export function Budget({ data }) {
   const [roll, setRoll] = useState(null);
   const [covering, setCovering] = useState(null);   // { month, ids, done? }: the Cover sheet
   const [q, setQ] = useState('');
+  // Links between categories (where a cover came from, what a borrow covered): open that category.
+  useEffect(() => {
+    const go = e => {
+      const { id, month: m } = e.detail || {};
+      if (m) setMonth(m);
+      setQ('');
+      if (sortPref === 'needs') setSort('remaining');
+      setOpenCat(id);
+      setTimeout(() => document.getElementById('cat-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+    };
+    addEventListener('budget:gocat', go);
+    return () => removeEventListener('budget:gocat', go);
+  }, [sortPref]);
   ui.search = term => { setQ(term); setOpenCat(null); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const [review, setReview] = useState(null);
   // Wide screens show the Budget tab as a dashboard. With a Category detail widget, tapping a
@@ -745,7 +758,7 @@ function BorrowSheet({ data, month, ui, onClose }) {
         <div class="col" style="gap:6px">
           {b.items.filter(x => x.owed > 0).map(x => (
             <div class="borrowitem row between">
-              <span class="col" style="min-width:0"><b>{x.name}</b><span class="head">{x.date ? `Covered ${dayOf(x.date)}` : 'Covered earlier'}{x.amount !== x.owed ? ` · ${fmt(x.amount)}, ${fmt(x.amount - x.owed)} paid back` : ''}</span></span>
+              <span class="col" style="min-width:0">{x.cat ? <button type="button" class="link catlink" onClick={() => { onClose(); goCat(x.cat, month); }}>{x.name} ›</button> : <b>{x.name}</b>}<span class="head">{x.date ? `Covered ${dayOf(x.date)}` : 'Covered earlier'}{x.amount !== x.owed ? ` · ${fmt(x.amount)}, ${fmt(x.amount - x.owed)} paid back` : ''}</span></span>
               <span class="row" style="gap:8px;flex:none"><b class="money neg">−{fmt(x.owed)}</b>
                 {x.cat && <button class="ghost small" onClick={async () => { await undoBorrow(data, month, x); ui.toast(`${x.name} is overspent again`); }}>Undo</button>}</span>
             </div>
@@ -757,11 +770,23 @@ function BorrowSheet({ data, month, ui, onClose }) {
   ), document.body);
 }
 
-/** On a category covered with next month's money: when, and how much is still owed. */
+/**
+ * On a category: covers this month, both ways, with links to the other category ("Covered $6.28 from
+ * Emergency Fund ›", "Gave $6.28 to Dining Out ›"), and money covered from next month.
+ */
 function BorrowNote({ data, month, c }) {
   const mine = borrowItems(data, month).items.filter(x => x.cat === c.id && x.owed > 0);
-  if (!mine.length) return null;
-  return <div class="head borrownote">↪ Covered {mine.map(x => `${fmt(x.owed)} on ${dayOf(x.date)}`).join(' and ')} with {shortMonth(addMonths(month, 1))}'s money.</div>;
+  const { got, gave } = coverNotes(data, month, c.id);
+  if (!mine.length && !got.length && !gave.length) return null;
+  const Link = ({ x }) => (x.other === 'rta' ? <b>Ready to assign</b>
+    : <button type="button" class="link catlink" onClick={e => { e.stopPropagation(); goCat(x.other, month); }}>{x.otherName} ›</button>);
+  return (
+    <div class="covernotes">
+      {mine.length > 0 && <div class="head borrownote">↪ Covered {mine.map(x => `${fmt(x.owed)} on ${dayOf(x.date)}`).join(' and ')} with {shortMonth(addMonths(month, 1))}'s money.</div>}
+      {got.map(x => <div class="head">Covered {fmt(x.amount)} from <Link x={x} /> on {dayOf(x.date)}</div>)}
+      {gave.map(x => <div class="head">Gave {fmt(x.amount)} to <Link x={x} /> on {dayOf(x.date)}</div>)}
+    </div>
+  );
 }
 
 /** How this month's spending in a category was paid: credit cards (each) versus cash or debit. */

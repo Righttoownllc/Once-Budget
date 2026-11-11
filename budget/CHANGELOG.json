@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.55.1",
+    "date": "2026-11-10",
+    "changes": [
+      "Covers link both ways: a category covered from another says \"Covered $X from Emergency Fund ›\", and the one that gave says \"Gave $X to Dining Out ›\". Tap the name to go to that category",
+      "In the Owed to / Paying back sheet, tap a category to go straight to it"
+    ]
+  },
+  {
     "version": "1.55.0",
     "date": "2026-11-10",
     "changes": [

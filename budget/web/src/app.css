@@ -977,3 +977,6 @@ button.who { padding: 0; min-height: 0; border: 0; cursor: pointer; }
 .borrowrow .head { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .borrowitem { background: var(--chip); border-radius: 12px; padding: 8px 10px; gap: 8px; }
 .borrownote { color: var(--neg); }
+.covernotes { display: flex; flex-direction: column; gap: 2px; margin: 0 0 6px; }
+.catlink { display: inline; padding: 0; min-height: 0; background: none; border: 0; font: inherit; font-weight: 600; color: var(--pos); text-decoration: underline; text-underline-offset: 2px; }
+.borrowitem .catlink { font-size: 15px; text-align: left; }
