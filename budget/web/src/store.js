@@ -120,7 +120,7 @@ export function labelFor(tbl, row, before) {
   }
 }
 // Bookkeeping the app writes for itself (badges earned) isn't something you'd want Undo to reverse.
-const quiet = (tbl, row) => tbl === 'household_prefs' && /^badges?:/.test(row.id || '');
+const quiet = (tbl, row) => tbl === 'household_prefs' && /^(badges?|capture):/.test(row.id || '');
 async function record(tbl, before, after) {
   if (quiet(tbl, after)) return;
   const label = batchLabel ? (batchCount++ === 0 ? batchLabel : null) : labelFor(tbl, after, before);

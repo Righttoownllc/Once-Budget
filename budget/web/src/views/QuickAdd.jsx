@@ -4,7 +4,7 @@ import { ask } from '../dialog.js';
 import { fmt, today, payeeMemory, frequentCategories, monthView, ym, addDays, parseMoney, stampLabel } from '../budget.js';
 import { put, remove, transfer, restore, haptic, beginBatch, endBatch, uuid, setPref } from '../store.js';
 import { finishCapture, canOpenWallet, openWallet } from '../platform.js';
-import { cardKey, cardLabel, refreshCaptures } from '../captures.js';
+import { cardKey, cardLabel, refreshCaptures, doneCapture, captureTxId } from '../captures.js';
 import { useUI, useModal } from '../main.jsx';
 import { applyRules, learnRule, getDefaultAccount, isClosedDate, perBudget } from '../features.js';
 import { CatInput, CatPicker } from './CatInput.jsx';
@@ -72,12 +72,8 @@ export function QuickAdd({ data, opts, onClose }) {
   const rememberCard = async () => {
     if (cap?.last4 && account && data.prefs?.[cardKey(cap.last4)] !== account) await setPref(cardKey(cap.last4), account);
   };
-  const finishCap = async () => {
-    if (!cap) return;
-    await finishCapture(cap.id).catch(() => {});
-    refreshCaptures();
-  };
-  const dismissCap = async () => { await finishCapture(cap.id).catch(() => {}); refreshCaptures(); ui.toast('Dismissed tap-to-pay purchase', { plain: true }); onClose(); };
+  const finishCap = async () => { if (cap) await doneCapture(cap); };
+  const dismissCap = async () => { await doneCapture(cap); ui.toast('Dismissed tap-to-pay purchase', { plain: true }); onClose(); };
   const closedNew = !editing && isClosedDate(data, date);
   const [cleared, setCleared] = useState(editing ? editing.cleared > 0 : false);
   const [memo, setMemo] = useState(editing?.memo || '');
@@ -256,8 +252,10 @@ export function QuickAdd({ data, opts, onClose }) {
         transfer_id: null,
         // Marked cleared means the bank already shows the total with the tip.
         tip_pending: tip > 0 && !cleared ? tip : 0,
-        // A tap-to-pay purchase is timed by the payment itself (store.js keeps an existing time).
+        // A tap-to-pay purchase is timed by the payment itself (store.js keeps an existing time), and
+        // has a fixed id, so saving it on two devices makes one transaction.
         ...(!editing && cap?.postedAt ? { created_at: cap.postedAt } : {}),
+        ...(!editing && cap ? { id: captureTxId(cap) } : {}),
       };
       if (editing && otherLeg) await remove('transactions', otherLeg.id);
       const saved = await put('transactions', row);

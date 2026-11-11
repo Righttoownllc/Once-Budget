@@ -5,16 +5,55 @@
 import { listCaptures, onNative, isNative, callNative, captureBudget, budgetId, BRIDGE_VERSION, finishCapture } from './platform.js';
 import { applyRules, ruleKey, getDefaultAccount } from './features.js';
 import { payeeMemory, monthView, ym, fmt } from './budget.js';
-import { put, remove } from './store.js';
+import { put, remove, setPref, canChangeAll } from './store.js';
 
-let list = [];
+// Caught purchases are shared with the budget while they wait ("capture:<id>" budget settings), so
+// every phone and the web app show the same "to log" bubble, and saving or dismissing it anywhere
+// clears it everywhere. Nothing touches the budget until it's saved. Saved, a purchase is the
+// transaction "cap-<id>", so saving it on two devices still makes one transaction.
+let native = [], list = [], data = null;
 const subs = new Set();
+const KEY = id => 'capture:' + id;
+export const captureTxId = cap => 'cap-' + cap.id;
+const PUB = 'budget.capturesShared';
+const published = new Set((() => { try { return JSON.parse(localStorage.getItem(PUB) || '[]'); } catch { return []; } })());
+const savePub = () => { try { localStorage.setItem(PUB, JSON.stringify([...published].slice(-200))); } catch {} };
 export const captures = () => list;
 export const onCaptures = fn => { subs.add(fn); return () => subs.delete(fn); };
-export async function refreshCaptures() {
-  try { list = (await listCaptures()) || []; } catch { list = []; }
+const shareable = () => !!data && canChangeAll() && captureBudget() === budgetId();
+const fields = c => ({ id: c.id, amount: c.amount, merchant: c.merchant, card: c.card, last4: c.last4, postedAt: c.postedAt, hidden: !!c.hidden });
+
+async function merge() {
+  const prefs = data?.prefs || {}, txIds = new Set((data?.txs || []).map(t => t.id));
+  const shared = Object.entries(prefs).filter(([k]) => k.startsWith('capture:')).map(([, v]) => { try { return JSON.parse(v); } catch { return null; } }).filter(Boolean);
+  const mine = [];
+  for (const c of native) {
+    const done = txIds.has(captureTxId(c)) || (published.has(c.id) && !prefs[KEY(c.id)]);
+    if (data && done) { finishCapture(c.id).catch(() => {}); continue; }   // saved or dismissed on another device
+    mine.push(c);
+    if (shareable() && !published.has(c.id) && !prefs[KEY(c.id)]) {
+      published.add(c.id); savePub();
+      setPref(KEY(c.id), JSON.stringify(fields(c))).catch(() => { published.delete(c.id); savePub(); });
+    }
+  }
+  const ids = new Set(mine.map(c => c.id));
+  list = [...mine, ...shared.filter(c => !ids.has(c.id) && !txIds.has(captureTxId(c))).map(c => ({ ...c, shared: true }))]
+    .sort((a, b) => (a.postedAt || 0) - (b.postedAt || 0));
   subs.forEach(fn => fn(list));
   return list;
+}
+export async function refreshCaptures() {
+  try { native = (await listCaptures()) || []; } catch { native = []; }
+  return merge();
+}
+/** Gives the capture list the budget's data (for the shared ones); called whenever it changes. */
+export function setCaptureData(d) { data = d; merge(); }
+/** A capture is finished (saved or dismissed): off this phone's queue and, if shared, off everyone's. */
+export async function doneCapture(cap) {
+  await finishCapture(cap.id).catch(() => {});
+  if (data?.prefs?.[KEY(cap.id)] !== undefined) await remove('household_prefs', KEY(cap.id)).catch(() => {});
+  native = native.filter(c => c.id !== cap.id);
+  return refreshCaptures();
 }
 if (isNative) {
   onNative('capture', refreshCaptures);
@@ -104,8 +143,8 @@ export async function logConfirmed(data, list, toast, openTx) {
     if (!cat || !account_id) continue;   // category gone or no account: stays in the banner to log by hand
     logged.add(cap.id);
     const d = captureDraft(data, cap);
-    const saved = await put('transactions', { account_id, date: d.date, payee: d.payee, memo: '', category_id: cat.id, amount: -cap.amount, cleared: 0, transfer_id: null, created_at: cap.postedAt || undefined });
-    await finishCapture(cap.id).catch(() => {});
+    const saved = await put('transactions', { id: captureTxId(cap), account_id, date: d.date, payee: d.payee, memo: '', category_id: cat.id, amount: -cap.amount, cleared: 0, transfer_id: null, created_at: cap.postedAt || undefined });
+    await doneCapture(cap);
     const v = monthView({ ...data, txs: data.txs.concat([saved]) }, ym());
     let avail = null; for (const g of v.groups) for (const r of g.rows) if (r.id === cat.id) avail = r.available;
     // Saved from the notification without the tip: the toast offers to add one (and Undo).

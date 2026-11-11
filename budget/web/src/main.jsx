@@ -6,7 +6,7 @@ import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
 import './app.css';
 import { isNative, isLocal, onNative, takeLaunchCapture, exitApp, callNative, hasBudgets, budgetId, listBudgets, peekPendingAction, moneyHidden, setMoneyHidden, takeLaunchPair } from './platform.js';
-import { captures, onCaptures, refreshCaptures, captureDraft, captureSummary, sendCaptureHints, logConfirmed } from './captures.js';
+import { captures, onCaptures, refreshCaptures, captureDraft, captureSummary, sendCaptureHints, logConfirmed, setCaptureData } from './captures.js';
 import { reSignIn } from './connect.js';
 import { ask, tell, setDialogHost } from './dialog.js';
 import { subscribe, bootstrapIfEmpty, sync, syncState, APP_VERSION, CHANGELOG, updateAvailable, historyList, undoBatch, reloadApp, access, canChangeAll, canAddPurchases, dataVersion } from './store.js';
@@ -252,7 +252,7 @@ function CaptureBanner() {
   const c = list[0];
   return (
     <div class="banner" onClick={() => ui.openCapture(c)}>
-      <b>{list.length === 1 ? 'Log tap-to-pay purchase' : `${list.length} tap-to-pay purchases to log`}</b>
+      <b>{list.length === 1 ? 'Log tap-to-pay purchase' : `${list.length} tap-to-pay purchases to log`}{c.shared ? <span class="head"> · caught on another phone</span> : null}</b>
       <span class="head">{captureSummary(c)}</span>
     </div>
   );
@@ -485,6 +485,8 @@ function App() {
   useEffect(() => { if (isNative && data) syncReminders(data); }, [data]);
   // One-tap logging: keep the phone's category hints current, and log purchases saved from the notification.
   useEffect(() => { if (isNative && data) sendCaptureHints(data); }, [data]);
+  // Caught purchases waiting to be logged are shared with the budget (every device shows them).
+  useEffect(() => { if (data) setCaptureData(data); }, [data]);
   const dataRef = useRef(data); dataRef.current = data;
   useEffect(() => {
     if (!isNative) return;

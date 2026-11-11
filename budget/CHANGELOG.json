@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.56.0",
+    "date": "2026-11-10",
+    "changes": [
+      "Tap-to-pay purchases waiting to be logged are shared with the budget: every phone and the web app show the same \"Log tap-to-pay purchase\" bubble (\"caught on another phone\" when it was), and saving or dismissing it on any device clears it everywhere. Nothing touches the budget until it's saved",
+      "A purchase saved on two devices at once is still one transaction"
+    ]
+  },
+  {
     "version": "1.55.1",
     "date": "2026-11-10",
     "changes": [
