@@ -1,0 +1,30 @@
+# Once Budget server. Copy this file to a folder of its own as docker-compose.yml, set your time zone,
+# then:  docker compose up -d     and open http://<this-computer's-address>:8085 in a browser.
+services:
+  once-budget:
+    image: ghcr.io/righttoownllc/once-budget:latest
+    container_name: once-budget
+    restart: unless-stopped
+    ports:
+      - "8085:8080"                # host:container. Don't forward this port on your router.
+    volumes:
+      - ./data:/data               # your budget (budget.db) and 14 days of nightly backups
+    environment:
+      - TZ=America/Los_Angeles     # your time zone: nightly backup at 03:00, reminders at REMIND_HOUR
+      - REMIND_HOUR=8
+      # The user and group that own ./data (the server fixes the folder's owner when it starts).
+      # 1000 is the first user on most Linux systems; run "id" to see yours.
+      - PUID=1000
+      - PGID=1000
+      # password (recommended): the first visit asks you to create a password; you're the admin.
+      # Browsers sign in with it; phones pair with a QR code from the server's "Pair a phone" page,
+      # where you can also add other people. Each person sees only their own (and shared) budgets.
+      - AUTH_MODE=password
+      # Add CF_ACCESS_TEAM and CF_ACCESS_AUD to password mode to accept Cloudflare sign-ins as well
+      # (away through Cloudflare, password and pairing at home).
+      # Other options: cloudflare (Cloudflare Access in front; set CF_ACCESS_TEAM and CF_ACCESS_AUD;
+      # each person is their Access email and sees only their own and shared budgets) or open (no
+      # login of its own and no separation: everyone who reaches it sees every budget).
+      # - KEEP_DAYS=14             # days of backups to keep
+
+# Build from source instead of using the published image: replace "image:" with  build: ./

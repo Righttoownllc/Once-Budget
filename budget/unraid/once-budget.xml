@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- Unraid template. To use it before it's in Community Applications, save it on the server
+     (Unraid terminal):
+       wget -O /boot/config/plugins/dockerMan/templates-user/my-OnceBudget.xml https://raw.githubusercontent.com/righttoownllc/Once-Budget/main/budget/unraid/once-budget.xml
+     then Docker › Add Container › Template › OnceBudget. -->
+<Container version="2">
+  <Name>OnceBudget</Name>
+  <Repository>ghcr.io/righttoownllc/once-budget:latest</Repository>
+  <Registry>https://github.com/orgs/righttoownllc/packages/container/package/once-budget</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/righttoownllc/Once-Budget/issues</Support>
+  <Project>https://github.com/righttoownllc/Once-Budget</Project>
+  <Overview>Sync server for the Once Budget app (envelope budgeting) by RightToOwn LLC. Your data stays on your server: no accounts, no tracking. Open the web UI once to create a password, then pair phones by scanning a QR code.</Overview>
+  <TemplateURL>https://raw.githubusercontent.com/righttoownllc/Once-Budget/main/budget/unraid/once-budget.xml</TemplateURL>
+  <Category>Productivity: Tools:</Category>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <Icon>https://raw.githubusercontent.com/righttoownllc/Once-Budget/main/budget/web/public/icon-512.png</Icon>
+  <Config Name="Web UI port" Target="8080" Default="8085" Mode="tcp" Description="Port for the web app and the phones" Type="Port" Display="always" Required="true" Mask="false">8085</Config>
+  <Config Name="Data" Target="/data" Default="/mnt/user/appdata/once-budget/data" Mode="rw" Description="Your budget and 14 days of nightly backups" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/once-budget/data</Config>
+  <Config Name="Time zone" Target="TZ" Default="America/Los_Angeles" Mode="" Description="For the 3 a.m. backup and morning reminders" Type="Variable" Display="always" Required="false" Mask="false">America/Los_Angeles</Config>
+  <Config Name="Sign-in" Target="AUTH_MODE" Default="password|open|cloudflare" Mode="" Description="password: create one on first visit, pair phones by QR, add other people (recommended; add CF_ACCESS_TEAM and CF_ACCESS_AUD variables to also accept Cloudflare sign-ins). cloudflare: Cloudflare Access in front, each person by email. Both keep each person's budgets private. open: no login and no separation (home network only)." Type="Variable" Display="always" Required="true" Mask="false">password</Config>
+  <Config Name="User ID" Target="PUID" Default="99" Mode="" Description="The user that owns your data folder (99 = Unraid's nobody)" Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
+  <Config Name="Group ID" Target="PGID" Default="100" Mode="" Description="The group that owns your data folder (100 = Unraid's users)" Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
+  <Config Name="Backup days" Target="KEEP_DAYS" Default="14" Mode="" Description="How many days of nightly backups to keep" Type="Variable" Display="advanced" Required="false" Mask="false">14</Config>
+</Container>

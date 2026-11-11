@@ -1,0 +1,28 @@
+# Real financial data and the push private key never go in git
+source/unraid/data/
+**/node_modules/
+budget/web/dist/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/app/src/main/assets/web/
+*.keystore
+*.jks
+.idea/
+android/keystore.properties
+source/*.csv
+source/examples/Screenshot_*
+
+output/Manual/tools/node_modules/
+output/Manual/tools/budget-export.json
+output/Manual/tools/.review/
+
+# Build outputs (output/ keeps only the latest; the manual in output/Manual is tracked)
+output/*.apk
+output/*.zip
+output/Manual/tools/.t.mjs
+source/examples/Screenshot*
+budget/docker-compose.yml
+android/
+RELEASE.md

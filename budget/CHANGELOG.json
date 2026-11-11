@@ -1,0 +1,1143 @@
+[
+  {
+    "version": "1.53.2",
+    "date": "2026-11-10",
+    "changes": [
+      "Every drop-down list in the app (account and category pickers, how often, goal type, report filters, sharing levels, settings and more) now opens in the app's own style, light or dark, instead of Android's plain system popup"
+    ]
+  },
+  {
+    "version": "1.53.1",
+    "date": "2026-11-10",
+    "changes": [
+      "Quick add: choosing the account (and the From / To accounts of a transfer or card payment) opens a list in the app's own style, light or dark, instead of Android's plain system popup"
+    ]
+  },
+  {
+    "version": "1.53.0",
+    "date": "2026-11-09",
+    "changes": [
+      "New server: after you create the password, setup walks you through your accounts, paycheck, bills and everyday amounts, and ends with Connect your phone (show the pairing code, or Not now), instead of dropping you on the pairing page"
+    ]
+  },
+  {
+    "version": "1.52.1",
+    "date": "2026-11-09",
+    "changes": [
+      "Fixed: card payments are counted in date order. A payment pays the card's debt that existed when you made it, so purchases made after it stay Ready to pay instead of moving into Ready to Assign"
+    ]
+  },
+  {
+    "version": "1.52.0",
+    "date": "2026-11-09",
+    "changes": [
+      "Card payoff: the payoff category now shows the card debt it still holds. A payment to a card first uses its Ready to pay, then pays that debt down and comes out of Ready to Assign by itself, so there's no need to assign money to record a payment (and nothing can count twice)",
+      "Money assigned to the payoff category is set aside for your next payment, shown as Ready to pay on the cards in your order or your debt plan's",
+      "Accounts › Ready to pay: tap a card to see where its money comes from"
+    ]
+  },
+  {
+    "version": "1.51.2",
+    "date": "2026-11-09",
+    "changes": [
+      "Fixed: 1.51.1 counted payoff-category money that had already paid a card down again, so another card's Ready to pay could ask you to pay it twice. Money that already went to a card is used up"
+    ]
+  },
+  {
+    "version": "1.51.1",
+    "date": "2026-11-09",
+    "changes": [
+      "Each card's page shows where its Ready to pay comes from: your payoff category, this month's purchases by category, and earlier purchases",
+      "Card payoff with 'Pay cards in my debt plan's order' off: you set the order cards get the money in (▲ ▼ under Budget rules), and it all goes to the first card until it's covered, instead of being split across every card",
+      "Cover sheet: when Ready to assign can cover it, that's the only choice shown"
+    ]
+  },
+  {
+    "version": "1.51.0",
+    "date": "2026-11-09",
+    "changes": [
+      "Each category shows how this month's spending was paid: on credit cards (card by card) versus cash or debit",
+      "Cover sheet: when part of the overspending is on a credit card, cover all of it or only the cash part. The card part waits on the card and, with rolling on, moves to your payoff category at month end",
+      "Card payoff: money assigned to the payoff category now pays cards in your debt plan's order (minimums first, then snowball or avalanche) instead of by balance, and rolled overspending is counted on the card it was spent on. Switch it off under Budget rules › Credit card overspending to give each card back what was rolled from it"
+    ]
+  },
+  {
+    "version": "1.50.1",
+    "date": "2026-11-09",
+    "changes": [
+      "Server: starts even when its data folder was created owned by root (as Unraid and Docker do): it makes the folder belong to PUID:PGID (Unraid template 99:100, otherwise 1000:1000), then runs as that user",
+      "Unraid: the template is installed with one terminal command until it's in Community Applications (DOCKER.md)"
+    ]
+  },
+  {
+    "version": "1.50.0",
+    "date": "2026-11-08",
+    "changes": [
+      "Cover overspending from wherever there's money: tap Cover and pick Ready to assign or a category that can spare it (categories keep what their target and this month's bills still need). A source without enough covers what it can and the rest stays to cover",
+      "When nothing can cover it, Take from next month's money: the category goes back to $0 now and the amount comes off next month's Ready to assign, shown under Ready to assign in both months",
+      "The month-end \"ended overspent\" notice offers Take from this month's money or Other ways; Cover all in the money check and month review use the same choices"
+    ]
+  },
+  {
+    "version": "1.49.0",
+    "date": "2026-11-08",
+    "changes": [
+      "Budget table on a phone: pick Assigned, Spent or Available and see four months side by side with no sideways scrolling, newest on the right. Tap a number to change what's assigned that month, with one-tap Same as last month, Target and What was spent",
+      "The Tiles view on the Budget tab is gone; categories are always the list"
+    ]
+  },
+  {
+    "version": "1.48.0",
+    "date": "2026-11-08",
+    "changes": [
+      "Reports on a computer: the cards pack together without big gaps, and ✎ Customize lets you move, resize, remove and add back each report, or pick a layout (Overview, Trends first, Spending focus)",
+      "Your Reports layout is remembered on each device, like the Budget dashboard's"
+    ]
+  },
+  {
+    "version": "1.47.2",
+    "date": "2026-11-08",
+    "changes": [
+      "On a computer every page has the same width as the Budget dashboard, so nothing jumps around when you switch tabs",
+      "Reports: the custom report's dates, account, category and grouping now sit in the same box as its result, with the net total at the top"
+    ]
+  },
+  {
+    "version": "1.47.1",
+    "date": "2026-11-08",
+    "changes": [
+      "On a computer, the Budget table fills the window so several months fit side by side",
+      "Wide screens use their space: no empty strip down the right, Badges and the forecast lay out side by side, and an account's transactions show the category in its own column",
+      "Once Budget is open source under the GNU AGPL v3; About says so and links to the code"
+    ]
+  },
+  {
+    "version": "1.47.0",
+    "date": "2026-11-08",
+    "changes": [
+      "Budget is now called Once Budget, with a new icon (also the themed icon on Android 13+, the notification icon, and the icon when you add it to a home screen from a browser)",
+      "Nothing about your budget changes: same data, same server, same settings"
+    ]
+  },
+  {
+    "version": "1.46.1",
+    "date": "2026-11-08",
+    "changes": [
+      "Fixed: after a budget was restored from a server backup (or erased), other phones and browsers could keep things the server no longer had, such as an old test account. They now download the budget again on their next sync",
+      "Every device downloads its budget fresh once after this update, which clears out anything left over from before"
+    ]
+  },
+  {
+    "version": "1.46.0",
+    "date": "2026-11-08",
+    "changes": [
+      "Smoother scrolling: the app now uses your phone's fastest refresh rate (120 Hz where available), and pages scroll the way the rest of the phone does",
+      "Long account histories load as you scroll instead of all at once",
+      "Saving is quicker, and background syncs with nothing new no longer redraw the app (a small stutter about once a minute)",
+      "Large JSON imports take seconds instead of minutes"
+    ]
+  },
+  {
+    "version": "1.45.1",
+    "date": "2026-11-07",
+    "changes": [
+      "Signing in at home without the server password: opened through Cloudflare, Settings › Sync & server › Get a code to sign in at home shows a one-time code for the home address's sign-in page (Sign in with a code), as the same person with the same budgets"
+    ]
+  },
+  {
+    "version": "1.45.0",
+    "date": "2026-11-07",
+    "changes": [
+      "Every transaction records when it was entered (tap-to-pay: the moment you paid), and accounts keep that order",
+      "Uncleared transactions stay at the top; once cleared, a transaction moves into its place by date and time. Editing never moves it",
+      "Newest shows everything by date and time; editing a transaction shows when it was entered, and tapping someone's initials shows when they entered it"
+    ]
+  },
+  {
+    "version": "1.44.0",
+    "date": "2026-11-07",
+    "changes": [
+      "Tap the initials on a transaction to see who entered it. They now show the person's name, including people added on your server's Pair a phone page",
+      "Colours: each person in a shared budget has a colour for their initials. Tap their circle in Who can open this budget to change it (owners for anyone, everyone for themselves)"
+    ]
+  },
+  {
+    "version": "1.43.0",
+    "date": "2026-11-07",
+    "changes": [
+      "Sharing levels: when you share a budget, pick Change everything, Add purchases (adds purchases and changes only their own) or View only, and change it any time",
+      "Your server enforces the level on every change; someone with a limited level sees a note at the top saying what they can do, and View only has no + button",
+      "Fixed: Pair a phone, after adding a person or showing someone's code, could show the budget instead of the page",
+      "Rename and Delete are only offered for budgets you own"
+    ]
+  },
+  {
+    "version": "1.42.3",
+    "date": "2026-11-07",
+    "changes": [
+      "Share with no longer lists old built-in sign-in names from a test mode (such as me@home) that nobody can sign in as. They still show under Who can open this budget, so you can remove them"
+    ]
+  },
+  {
+    "version": "1.42.2",
+    "date": "2026-11-07",
+    "changes": [
+      "Fixed: scanning the Pair a phone QR code with the camera gave a web search. The code is now a normal link to a page on your server with Open in Budget (and the code to type)",
+      "The QR code points at your server's home address even when Pair a phone is opened through Cloudflare, because a new phone can't pair through Cloudflare. The home address is remembered, or typed on that page"
+    ]
+  },
+  {
+    "version": "1.42.1",
+    "date": "2026-11-07",
+    "changes": [
+      "Connected through Cloudflare and added your home address? Save & test now pairs the phone with it by itself (through Cloudflare), so home no longer says Refused",
+      "Pair again with a code is always offered while connected"
+    ]
+  },
+  {
+    "version": "1.42.0",
+    "date": "2026-11-07",
+    "changes": [
+      "Settings › Sync & server › Server password: create your server's password from the app, or change it later",
+      "Forgot it? Signed in through Cloudflare as the admin, you can set a new one without the old one",
+      "Fixed: once the web app had been opened in a browser, the server's own pages (password setup, sign-in, Pair a phone) showed the budget instead"
+    ]
+  },
+  {
+    "version": "1.41.1",
+    "date": "2026-11-07",
+    "changes": [
+      "Fixed: switching a Cloudflare server to password mode, the password couldn't be created unless you were the very first person who ever used the server. Anyone who already owned its main budget can create it through Cloudflare, and becomes the admin",
+      "Fixed: until the password was created, the web app through Cloudflare kept bouncing to the password page, so its update banner never cleared"
+    ]
+  },
+  {
+    "version": "1.41.0",
+    "date": "2026-11-07",
+    "changes": [
+      "Home and Cloudflare together: a server with AUTH_MODE=password that keeps its Cloudflare settings accepts Cloudflare sign-ins away and the password and paired phones at home, as the same person with the same budgets",
+      "A phone already connected through Cloudflare can Pair with a code to sync at home too, without changing anything else",
+      "On a server that already has budgets, the password can only be created through Cloudflare, signed in as the admin, so nobody else on the network can claim it"
+    ]
+  },
+  {
+    "version": "1.40.0",
+    "date": "2026-11-07",
+    "changes": [
+      "🔒 Budgets on a shared server are private: each budget belongs to the people in it, and nobody else on the server can open it or see that it exists",
+      "Settings › Sync & server › Who can open this budget lists them. Owners share a budget (by email with Cloudflare, or by picking a person with a server password), make someone an owner, or stop sharing; anyone can leave a budget someone else owns",
+      "Server password (home network): the admin adds people on Pair a phone, and each gets a one-time code for their phone or browser, so they never need the server password",
+      "Only owners can rename, delete, erase or restore a budget. In open or local mode everyone still shares every budget, and the app says so",
+      "Servers set up before keep working as they were: everyone who had signed in owns every existing budget"
+    ]
+  },
+  {
+    "version": "1.39.0",
+    "date": "2026-11-07",
+    "changes": [
+      "💵 When do you get paid: set your pay schedule on the Forecast (weekly, every 2 weeks, twice a month or monthly) and one payday to count from. No amount needed",
+      "The forecast checks each account until your real next payday, and paydays show in the list, on the chart and as a green ring on the calendar",
+      "Paydays on a weekend move to the Friday before (or Monday after, or stay). Two people on different schedules can each add one"
+    ]
+  },
+  {
+    "version": "1.38.2",
+    "date": "2026-11-07",
+    "changes": [
+      "The menu fits on the screen: its items sit in two columns, so About and Close no longer need scrolling",
+      "Money in your budget has two tabs, Bank check and Hold for next month, so each fits without scrolling. The Hold button in the header opens the Hold tab",
+      "(i) pop-ups and What's new use the whole screen height before anything scrolls, and their buttons always stay in view"
+    ]
+  },
+  {
+    "version": "1.38.1",
+    "date": "2026-11-07",
+    "changes": [
+      "The add and edit screen fits on a small screen: the number pad and Save or Update are always visible without scrolling",
+      "The tip choices sit on one line, and the account and date share a row",
+      "Editing a tipped purchase shows the tip percent you picked instead of Other",
+      "Messages at the bottom of the screen use the full width instead of wrapping into a narrow column"
+    ]
+  },
+  {
+    "version": "1.38.0",
+    "date": "2026-11-07",
+    "changes": [
+      "💵 Tips: every tap-to-pay prompt has a Tip row (No tip, 15%, 18%, 20%, Other) with the total. Your budget counts the full amount straight away; typed purchases have + tip too, and a purchase saved from the notification offers + Tip in the message that follows",
+      "Until your bank posts the tip, the purchase shows tip pending and the account says what your bank shows for now. The bank check and Reconcile mention it too",
+      "When the bank catches up, tap the circle on the purchase: Yes clears it, or type the amount the bank shows and the purchase and its category update",
+      "Tips still not posted after 10 days are listed in Money check",
+      "Server: transactions remember a pending tip (update the server so tips stay marked as pending when they sync)"
+    ]
+  },
+  {
+    "version": "1.37.0",
+    "date": "2026-11-07",
+    "changes": [
+      "Reports › Where it went: choose which categories the spending chart shows (🎯 Categories), so a big debt payment doesn't fill the chart while you pay it down",
+      "Hide from chart in a slice's pop-up, a one-tap Hide for your card payoff category, and a Not shown line under the chart with Show all"
+    ]
+  },
+  {
+    "version": "1.36.0",
+    "date": "2026-11-07",
+    "changes": [
+      "New (i) help buttons across the app: tap one next to a heading for a short pop-up on how it works",
+      "Covered: Ready to assign, the category columns, Money check, Needs, Over plan, Bank check, Age of money, Net worth, Ready to pay, Where it went, the Reports charts, Forecast, Scheduled, Streaks, the debt planner, and the Settings for your server, automatic backups, tap-to-pay, card overspending and closing months"
+    ]
+  },
+  {
+    "version": "1.35.0",
+    "date": "2026-11-07",
+    "changes": [
+      "Debt planner: debts are numbered in payoff order, and the one getting the extra money now is marked in green",
+      "Debt planner: when snowball and avalanche give the same plan (your smallest debt also has the highest rate), it now says so instead of looking like nothing happened",
+      "New (i) buttons on the debt planner open a short explanation of snowball, avalanche, the extra amount and the payoff order"
+    ]
+  },
+  {
+    "version": "1.34.1",
+    "date": "2026-11-07",
+    "changes": [
+      "Fixed: tapping Connect in Settings › Sync & server on the phone showed an error (\"Converting circular structure to JSON\") instead of connecting"
+    ]
+  },
+  {
+    "version": "1.34.0",
+    "date": "2026-11-05",
+    "changes": [
+      "📱 Pair a phone with a QR code: servers can now have their own password (AUTH_MODE=password). Open the server in a browser, create the password, then Pair a phone shows a QR code. Scan it with your phone's camera and Budget connects, with no addresses to type (or use Pair with a code in Settings › Sync & server)",
+      "Each phone and browser gets its own key, listed on the server's Pair a phone page where you can remove one",
+      "The server is now ready to publish as an image for PCs, NAS boxes and Raspberry Pi, with an Unraid template and a step-by-step install guide"
+    ]
+  },
+  {
+    "version": "1.33.1",
+    "date": "2026-11-05",
+    "changes": [
+      "Examples in tips, the changelog and the user manual use made-up store names and card numbers"
+    ]
+  },
+  {
+    "version": "1.33.0",
+    "date": "2026-11-05",
+    "changes": [
+      "📊 Reports › Where it went: a donut chart of your spending by category or group for this month, last month, 3 months or this year. Tap a slice to see its transactions, and a transaction to edit it. Card payments and money moved into the card payoff category don't count as spending",
+      "Over plan folds to one line until you tap it, and each category in it opens that category",
+      "Fixed: on a foldable phone (unfolded) or a wide screen, pop-ups opened from a category, like Schedule as a monthly bill, only dimmed the screen. Every pop-up now shows on top",
+      "The + button hides while a pop-up is open"
+    ]
+  },
+  {
+    "version": "1.32.0",
+    "date": "2026-11-04",
+    "changes": [
+      "⌨️ Type amounts with a computer keyboard in Quick add: the number pad always types the amount (even from the Payee box), Backspace deletes a digit, Enter saves",
+      "Debt payoff planner: the rate and minimum boxes no longer jump while you type; they save when you leave the box",
+      "Scheduled: the form says what's missing instead of silently not saving, and asks before discarding what you typed",
+      "A category with a monthly target can be scheduled as a monthly bill in one tap from its panel",
+      "New credit cards and loans ask for the interest rate, minimum payment and due day: the planner gets the numbers, and the monthly payment is scheduled with a reminder"
+    ]
+  },
+  {
+    "version": "1.31.1",
+    "date": "2026-11-04",
+    "changes": [
+      "Money in your budget now checks against your bank only: Ready to Assign + In categories + held + money set aside to pay cards should equal your checking, savings and cash accounts, with a ✓ when it does",
+      "Cards and loans have their own Debts section, showing what you owe and how much of each card is ready to pay"
+    ]
+  },
+  {
+    "version": "1.31.0",
+    "date": "2026-11-04",
+    "changes": [
+      "💰 Tap Ready to Assign for Money in your budget: each account's balance and the total to compare with your bank, and where the money is (in categories without overspending taken off, Ready to Assign, held, overspent), with a ✓ when it all adds up. Hold for next month is here too, and the Held card at the bottom of the budget is gone",
+      "Needs no longer lists the card payoff category, since that money is spent down rather than filled up",
+      "Reports: choose which accounts the reports include (🏦 Accounts)",
+      "Debt payoff planner: Leave out of plan on any debt (for example a mortgage), with Add back",
+      "Long category names no longer cut off their ✓ or ▲ badge"
+    ]
+  },
+  {
+    "version": "1.30.2",
+    "date": "2026-11-04",
+    "changes": [
+      "Fixed: the first letter you typed in a field like Payee was hidden under the focus outline. The whole field now lights up green while you type in it"
+    ]
+  },
+  {
+    "version": "1.30.1",
+    "date": "2026-11-04",
+    "changes": [
+      "The over-plan amount is shown in red",
+      "Fixed: text was cut off at the left edge of a highlighted row: the selected category (on wide screens with the side panel) and selected transactions in an account",
+      "The + button steps aside while transactions are selected, so it doesn't sit behind the selection bar"
+    ]
+  },
+  {
+    "version": "1.30.0",
+    "date": "2026-11-04",
+    "changes": [
+      "▲ Over plan: categories that spent more than their monthly target get an orange marker, even after you cover it, so you can see what needs a bigger target",
+      "Over plan card: lists those categories, plus scheduled bills that recently charged more than planned (\"Netflix charged $22.99, scheduled $16.99\") with an Update button that also raises the category's target",
+      "The + button: bottom-right corner of the window on computers (pages keep a margin so it never covers a card); on phones it slides away while you scroll down and comes back when you scroll up; hidden on Settings, Badges, History and Setup"
+    ]
+  },
+  {
+    "version": "1.29.1",
+    "date": "2026-11-04",
+    "changes": [
+      "The top of the Budget screen is much shorter: Payday check is one line (red if an account will dip below zero), streaks, savings goals and badges are a row of small chips, and Income is one line you can tap to open",
+      "Savings goal jars moved to Menu › Badges & goals; tap a goal's chip on the Budget screen for how it's doing"
+    ]
+  },
+  {
+    "version": "1.29.0",
+    "date": "2026-11-04",
+    "changes": [
+      "✏️ Rename categories: open a category and change its Name. It keeps its money, transactions, target and payee rules, and Undo puts the old name back",
+      "Rename groups too: tap ✎ next to a group's name in Groups view"
+    ]
+  },
+  {
+    "version": "1.28.2",
+    "date": "2026-11-04",
+    "changes": [
+      "Tiles: category names wrap onto two lines before being shortened, and can no longer run into the next tile. Rings line up along each row"
+    ]
+  },
+  {
+    "version": "1.28.1",
+    "date": "2026-11-04",
+    "changes": [
+      "Fixed: a category with a monthly target counted as underfunded again once you spent from it. It's now funded once you've assigned its target this month (or already have that much in it), so spending doesn't put it back in Needs or Fill to targets",
+      "Needs shows how much you've assigned toward a monthly target",
+      "Save-by-date goals: this month's share no longer shrinks as you assign it, so it shows as done once you've put in the month's amount"
+    ]
+  },
+  {
+    "version": "1.28.0",
+    "date": "2026-11-04",
+    "changes": [
+      "🎆 Your year: the recap for a whole year (Reports › Your 2026, or from the bottom of a monthly recap): what you kept, a bar for each month, where it went, your best month, biggest purchase, regular spot, no-spend days, months on budget, debt paid down and badges earned. Save as PDF",
+      "Recaps no longer count the starting balances of new accounts as income",
+      "Updated user manual: getting started, icons, streaks, badges, goal jars and your year, with new screenshots"
+    ]
+  },
+  {
+    "version": "1.27.0",
+    "date": "2026-11-04",
+    "changes": [
+      "🔥 Streaks on the Budget screen: days in a row with something logged, months in a row with nothing overspent, and no-spend days this month",
+      "🏅 Badges (Menu › Badges & streaks): 13 to earn, from your first transaction to debt-free. Each is celebrated once when you earn it; ones you'd already earned are awarded quietly",
+      "🐷 Savings goals: save-by-date goals get a jar that fills up, and a note saying whether you're on track and when you'll get there at your current pace. Reaching one gets a proper celebration"
+    ]
+  },
+  {
+    "version": "1.26.0",
+    "date": "2026-11-04",
+    "changes": [
+      "👋 Guided setup for a new budget: add your accounts and balances, your paycheck, your monthly bills (each becomes a scheduled bill with a target) and rough amounts for everyday spending. Every step can be skipped; rerun it from Settings › General"
+    ]
+  },
+  {
+    "version": "1.25.0",
+    "date": "2026-11-04",
+    "changes": [
+      "🛒 Category icons: every category gets an icon suggested from its name (🛒 Groceries, 🏠 Rent, ⛽ Gas…), shown in the budget, tiles, the category picker, Needs, Quick add and the recap. Change it or turn it off from the category's panel › Icon. Names that already start with an emoji are left as they are",
+      "↻ Pull down at the top of Budget or Accounts to sync right away"
+    ]
+  },
+  {
+    "version": "1.24.3",
+    "date": "2026-11-04",
+    "changes": [
+      "Fixed: syncing failed with \"Server answered 500\" after removing a category's target from the Needs list. The change that was stuck is sent correctly now and nothing is lost",
+      "The server also no longer lets one unexpected value stop the whole sync"
+    ]
+  },
+  {
+    "version": "1.24.2",
+    "date": "2026-11-04",
+    "changes": [
+      "Choosing the account for new transactions (Settings › General) no longer reloads the page, so the browser's own \"Leave site?\" box can't appear; a short note confirms it instead",
+      "Restoring a backup, resetting, connecting a server or switching budget no longer show that browser box either; they already ask in Budget's own pop-up first"
+    ]
+  },
+  {
+    "version": "1.24.1",
+    "date": "2026-11-04",
+    "changes": [
+      "Needs: tap a category to change its target amount, switch between each month and by a date, or remove the target, right in the list"
+    ]
+  },
+  {
+    "version": "1.24.0",
+    "date": "2026-11-04",
+    "changes": [
+      "🎯 Needs: a new choice next to Remaining and Spent that lists only categories below their target, biggest shortfall first. An amber badge on it shows how many there are",
+      "Each one has a + button that funds just that category to its target (or as much as Ready to Assign has), without opening it",
+      "\"All groups\" is now \"Groups\" so all four choices fit on a phone"
+    ]
+  },
+  {
+    "version": "1.23.0",
+    "date": "2026-11-04",
+    "changes": [
+      "Fixed: Quick add no longer asks \"Is this a payment to (your loan)?\" just because the category has \"car\", \"auto\" or \"house\" in its name (Car Registration, Daycare…). It asks only when the category is one you've mostly paid that loan from, or is plainly a loan category (Car loan, Mortgage, Car payment)",
+      "Answering \"No, it's spending\" is remembered for that category, so it doesn't ask again",
+      "Computers and tablets: Accounts, Reports, the debt planner and Settings pages use the full width with cards side by side; Settings shows its list on the left and the page on the right; an account's transactions, Scheduled, History and the payday forecast get a wider column",
+      "The + button and bottom bar line up with the page at every width"
+    ]
+  },
+  {
+    "version": "1.22.2",
+    "date": "2026-11-04",
+    "changes": [
+      "A new screen now opens at its top, instead of where the last screen was scrolled to",
+      "Accounts are listed in the order you arranged them everywhere, so the first account is always the one new transactions start in (unless you chose a default)",
+      "Importing a backup as a copy keeps each debt's interest rate and minimum, and your card payoff category",
+      "On/off switches in Settings sit beside their labels again",
+      "Updated user manual with new screenshots"
+    ]
+  },
+  {
+    "version": "1.22.1",
+    "date": "2026-11-04",
+    "changes": [
+      "Behind-the-scenes tidy-up"
+    ]
+  },
+  {
+    "version": "1.22.0",
+    "date": "2026-11-04",
+    "changes": [
+      "🧹 Settings is now a short list: General, Privacy & security, Notifications, Budget rules, Sync & server, Backups & data. Each opens its own page, and ‹ at the top goes back to the list",
+      "History has its own screen (Menu › History). Version, updates and what's new are under Settings › About",
+      "Removed the Scheduled card (it's in the Menu and the forecast calendar) and folded the offline and tap-to-pay explanations into one line each"
+    ]
+  },
+  {
+    "version": "1.21.0",
+    "date": "2026-11-04",
+    "changes": [
+      "🎨 New category picker: tapping Category opens a full-height grid of tiles grouped like your budget, each showing what's left (green, amber at $0, red when overspent). No keyboard unless you tap Search",
+      "Suggested tiles come first: the payee's usual category and the ones you use most",
+      "The same picker is used everywhere you choose a category: Quick add, splits, loan payments, Scheduled, CSV import and Settings"
+    ]
+  },
+  {
+    "version": "1.20.0",
+    "date": "2026-11-04",
+    "changes": [
+      "✨ Monthly recap (Menu › Monthly recap, Reports, or ✨ Recap in Month review): your month as a short story. What you kept and what share of income that was, money in and out, net worth change, where it went with changes from the month before, the biggest swings, and highlights (biggest purchase, your regular spot, no-spend days, biggest spending day, categories that stayed within budget, debt paid down)",
+      "Save as PDF to keep or share it",
+      "Calendar: + Recurring on any day adds a bill, paycheck or transfer starting that day"
+    ]
+  },
+  {
+    "version": "1.19.0",
+    "date": "2026-11-04",
+    "changes": [
+      "📅 Bills calendar: Payday forecast now has List and Calendar views. The calendar shows every scheduled bill (card bills too), paycheck and transfer as coloured dots, and shades the days an account would be below zero",
+      "Tap a day to see what's due, with Post, Skip or Move to another date, plus each account's balance at the end of that day. Look up to 12 months ahead"
+    ]
+  },
+  {
+    "version": "1.18.0",
+    "date": "2026-11-04",
+    "changes": [
+      "⛰ Debt payoff planner (Menu › Debt payoff planner): your credit cards and loans with each one's interest rate and minimum, an extra amount per month, and Snowball (smallest first) or Avalanche (highest interest first)",
+      "Shows your debt-free month, total interest, how much sooner and cheaper it is than paying minimums only, what the other order would cost, a chart, and what to pay on each debt this month",
+      "Rates and minimums are estimated until you enter yours, and saved with the budget (synced to your server if connected). Also a Debt payoff dashboard widget",
+      "Automatic phone backups are now optional for budgets synced with a server (the server already keeps 14 days): Settings › Automatic backups › Also back up on this phone. Offline budgets stay on by default"
+    ]
+  },
+  {
+    "version": "1.17.0",
+    "date": "2026-11-04",
+    "changes": [
+      "💾 Automatic backups on your phone: a copy of each budget every day you use it (when you open Budget, and when you leave it if anything changed). The same day's copy is overwritten, and the last 14 are kept",
+      "Settings › Automatic backups: Back up now, and Restore from any of the 14. A restore puts the budget back exactly as it was that day, and Undo reverses it",
+      "Also copy to a folder: choose a folder Google Drive syncs, or an SD card, so a copy lives off the phone (Android's folder picker, no permission). It also keeps 14",
+      "Server: one backup per night (taken as soon as it can if the server was off at 3 a.m.), the last 14 days kept"
+    ]
+  },
+  {
+    "version": "1.16.0",
+    "date": "2026-11-04",
+    "changes": [
+      "🏠 Home-screen widget: Ready to Assign, your three lowest categories, a payday warning if an account will dip below zero, and a + button that opens Quick add. Add it from Settings › Privacy › Add Budget to your home screen, or from your launcher's widget list",
+      "The widget shows •••• instead of amounts while Hide balances or App lock is on",
+      "It updates whenever your numbers change in the app, and uses no extra permission"
+    ]
+  },
+  {
+    "version": "1.15.0",
+    "date": "2026-11-04",
+    "changes": [
+      "📈 Payday forecast (Menu › Payday forecast): each checking, savings and cash account's balance projected from your scheduled bills, paychecks and transfers, with a chart and a running balance for every item. Choose 2 weeks, 5 weeks or 3 months",
+      "A Payday check card on the Budget screen warns when an account would go below zero before payday (\"Chequing goes to −$452.80 on Nov 9 (Rent). Payday is Nov 13\"), or confirms it stays above its lowest point",
+      "Also available as a dashboard widget on wide screens"
+    ]
+  },
+  {
+    "version": "1.14.0",
+    "date": "2026-11-04",
+    "changes": [
+      "⚡ One-tap logging: a tap-to-pay notification now offers \"Save as Dining Out\" (or whichever category fits) without opening the app. Budget picks it from your payee rules, then your past purchases at that store",
+      "\"Other…\" opens Quick add to choose something else, and Dismiss still drops it",
+      "Saved purchases are written at once if Budget is running, otherwise the next time you open it, with a note and Undo",
+      "The store-to-category list stays on your phone, inside the app"
+    ]
+  },
+  {
+    "version": "1.13.1",
+    "date": "2026-11-04",
+    "changes": [
+      "Back goes straight to the Budget screen from anywhere, instead of stepping through every screen you visited; Back on Budget then asks to exit. Open pop-ups still close first",
+      "With App lock on, tapping a tap-to-pay notification always asks for your fingerprint first, then opens the purchase"
+    ]
+  },
+  {
+    "version": "1.13.0",
+    "date": "2026-11-04",
+    "changes": [
+      "👁 Hide balances: the eye button at the top (or Settings › Privacy) blurs every amount; press and hold an amount to peek. Remembered on each device, in the app and the browser",
+      "🔒 App lock (Android app): Settings › Privacy › Lock with your phone's screen lock. Uses your fingerprint, face or PIN, with no extra permission. Lock when leaving, or after 1 or 5 minutes away; the recent-apps preview is hidden while it's on",
+      "Returning from Budget's own screens (file picker, Wallet, sign-in) never locks it"
+    ]
+  },
+  {
+    "version": "1.12.1",
+    "date": "2026-11-04",
+    "changes": [
+      "The menu slides up from the bottom and back down when it closes; swipe up on the bottom bar to open it, drag it down to close",
+      "Sheets slide up and pop-ups fade in (skipped when your phone's \"remove animations\" setting is on)"
+    ]
+  },
+  {
+    "version": "1.12.0",
+    "date": "2026-11-04",
+    "changes": [
+      "🎉 Confetti when Ready to Assign reaches exactly $0: every dollar has a job",
+      "💳 Celebrations for wins: a card paid off, a category reaching its target, age of money passing 30 days",
+      "Envelopes fill: assigning money pours into the category's bar or ring",
+      "Clearing a transaction pops its check with a little buzz",
+      "A category that just went over budget gives a short shake so you notice",
+      "Friendlier empty screens",
+      "All motion is skipped when your phone's \"remove animations\" setting is on"
+    ]
+  },
+  {
+    "version": "1.11.0",
+    "date": "2026-11-04",
+    "changes": [
+      "Wide screens (unfolded phones, tablets, computers): the Budget tab becomes a dashboard you can arrange. Tap ✎ Customize to pick a layout (Three panes, Budget + detail, Wide table), drag widgets by ⠿, make them wider or narrower, remove them or add more",
+      "Widgets: Budget, Category detail, Accounts, Net worth, Spending, Due soon, Ready to pay, Reports and Budget table",
+      "Each screen size remembers its own layout, so the unfolded phone and a computer can differ; folded phones keep the normal layout"
+    ]
+  },
+  {
+    "version": "1.10.2",
+    "date": "2026-11-04",
+    "changes": [
+      "Money rolls to its new value with a green or red glow: Ready to Assign, net worth, account balances and categories",
+      "Imports come alive again: rows land in batches with a progress bar and running total (still one Undo, still can't run twice)",
+      "Animations are skipped when your phone's \"remove animations\" setting is on"
+    ]
+  },
+  {
+    "version": "1.10.1",
+    "date": "2026-11-04",
+    "changes": [
+      "Fixed: some phones greyed out bank CSV files in the file picker (they label CSVs \"text/comma-separated-values\"); every common CSV and JSON label is accepted now"
+    ]
+  },
+  {
+    "version": "1.10.0",
+    "date": "2026-11-04",
+    "changes": [
+      "CSV import uses your bank's own transaction reference when the file has one, so duplicates are matched exactly (two identical purchases on one day both import)",
+      "The import screen explains that every bank's file differs, which duplicate check it's using, and that the whole import is one Undo",
+      "Choose a budget: Put on your server (checks the server can be reached, creates a budget with the same name and uploads it) and Make offline",
+      "Connecting a budget from Settings always lets you choose the server budget, including a new one, so a second budget is never merged into your main one"
+    ]
+  },
+  {
+    "version": "1.9.1",
+    "date": "2026-11-04",
+    "changes": [
+      "Fixed: tapping Import more than once during a CSV import could import the whole file again (seen with a 402-row bank file imported twice)",
+      "CSV import is much faster: 402 rows now take under a second instead of about 40 on a phone, and stay one Undo",
+      "CSV import no longer mistakes a \"CREDIT/DEBIT\" column for amounts",
+      "Tap-to-pay with several budgets: choose which budget purchases go to (Settings → Tap-to-pay capture); only that budget shows them, and tapping a prompt opens it there"
+    ]
+  },
+  {
+    "version": "1.9.0",
+    "date": "2026-11-04",
+    "changes": [
+      "New (optional): roll credit card overspending into a payoff category at month end, so categories start each month clean and card debt sits in one place (Settings → Credit card overspending)",
+      "Only the card share rolls: overspending paid with cash or debit stays red in its category",
+      "Card payoff shows in Money check as \"Card debt to fund\" with a Fund button, is included in Fill to targets, and each roll is listed in Month review with Undo",
+      "A card's starting balance can go straight into the payoff category from the card's Ready to pay panel"
+    ]
+  },
+  {
+    "version": "1.8.3",
+    "date": "2026-11-04",
+    "changes": [
+      "CSV import: rows already in the account are recognised by date and amount even if the payee was renamed by a rule, so importing the same or an overlapping file never adds them twice",
+      "CSV import: the same amount within 3 days of an existing transaction (e.g. one you logged yourself) is unticked as a possible duplicate",
+      "CSV import warns when you load a file you've imported into that account before",
+      "Fixed: after importing, the screen could stay open looking unfinished (inviting a second import); the Import button now also ignores a second tap"
+    ]
+  },
+  {
+    "version": "1.8.2",
+    "date": "2026-11-03",
+    "changes": [
+      "Tapping a bill reminder or tap-to-pay prompt while on the Choose a budget screen now opens it, instead of staying on that screen",
+      "Vibrate on tap shows as a proper checkbox"
+    ]
+  },
+  {
+    "version": "1.8.1",
+    "date": "2026-11-03",
+    "changes": [
+      "Fill to targets asks first, showing the total, each category it fills, and a warning if it's more than you have in Ready to Assign"
+    ]
+  },
+  {
+    "version": "1.8.0",
+    "date": "2026-11-03",
+    "changes": [
+      "Budget tab: choose what to show. Remaining (the default) lists every category in one list, lowest amount left first, so you can watch the budget; Spent lists the most spent first; All groups is the grouped layout",
+      "Remaining and Spent hide categories with nothing assigned or spent this month (tap the note to see all groups) and show each category's group",
+      "Your choice is remembered on this device, together with List or Tiles"
+    ]
+  },
+  {
+    "version": "1.7.1",
+    "date": "2026-11-03",
+    "changes": [
+      "Quick add asks before a tap outside or Back throws away an amount you've typed (or changes to a transaction you're editing); Cancel still closes straight away"
+    ]
+  },
+  {
+    "version": "1.7.0",
+    "date": "2026-11-03",
+    "changes": [
+      "Tap outside a menu, sheet or pop-up to close it",
+      "All pop-ups (undo, connect, sign-in, restore…) use the app's own styled window instead of the plain Android/browser box",
+      "On a computer or tablet the app keeps a comfortable phone-width column instead of stretching across the screen",
+      "List view is more compact; Tiles show three across with smaller rings, so a whole group fits on screen"
+    ]
+  },
+  {
+    "version": "1.6.2",
+    "date": "2026-11-03",
+    "changes": [
+      "Choose a budget lists each budget's number of accounts and when it was last updated"
+    ]
+  },
+  {
+    "version": "1.6.1",
+    "date": "2026-11-03",
+    "changes": [
+      "Switch budget (menu, or the yellow badge) steps out of the budget you're in to a Choose a budget screen, with none of the budget's header, tabs or menu; Back doesn't step back in"
+    ]
+  },
+  {
+    "version": "1.6.0",
+    "date": "2026-11-03",
+    "changes": [
+      "Several budgets on your server: create, rename, switch and delete them in the browser (Menu → Budgets). Each is stored separately on the server and included in the nightly backup",
+      "App: add any budget from your server to the phone (Menu → Budgets → On your server), or create a new one there; when connecting, choose which server budget to sync with",
+      "Importing a backup into a different budget makes an independent copy (new ids), so it never collides with the original",
+      "The server never lets an item move from one budget to another"
+    ]
+  },
+  {
+    "version": "1.5.3",
+    "date": "2026-11-03",
+    "changes": [
+      "Browser version: several budgets stay an Android app feature. A browser can erase its stored data, so the browser always shows the budget on your server; Menu → Budgets explains this"
+    ]
+  },
+  {
+    "version": "1.5.2",
+    "date": "2026-11-03",
+    "changes": [
+      "Browser version: Budgets works here too. Your first budget is your server's; extra budgets are offline and stay in this browser",
+      "Browser version: \"Sign in again to sync\" banner when your Cloudflare sign-in has expired (tap to sign in)",
+      "Browser version: Settings explains that tap-to-pay capture lives in the Android app; About & privacy says where data is kept in the browser"
+    ]
+  },
+  {
+    "version": "1.5.1",
+    "date": "2026-11-03",
+    "changes": [
+      "Budgets: new budgets start as \"New budget\" (name them anything); wording no longer assumes they're for testing"
+    ]
+  },
+  {
+    "version": "1.5.0",
+    "date": "2026-11-03",
+    "changes": [
+      "Several budgets on one phone (Menu → Budgets): separate households, a business, a shared trip, or a sandbox to try things in",
+      "Each budget has its own data and its own server settings; a yellow badge shows when you're not in your first budget",
+      "Rename budgets, and delete ones you don't need (type YES)"
+    ]
+  },
+  {
+    "version": "1.4.5",
+    "date": "2026-11-03",
+    "changes": [
+      "When Android hides a tap-to-pay purchase's details, Quick add has a \"See amount in Google Wallet\" button (needs the latest app)",
+      "Clearer tip about why some purchases (store numbers like SHOP 2468) arrive without the amount"
+    ]
+  },
+  {
+    "version": "1.4.4",
+    "date": "2026-11-03",
+    "changes": [
+      "Tap-to-pay tip explains that store numbers like \"SHOP 2468\" can also make Android hide a purchase's details, and where to find Enhanced/Adaptive notifications"
+    ]
+  },
+  {
+    "version": "1.4.3",
+    "date": "2026-11-03",
+    "changes": [
+      "List view on narrow screens (folded phones): the category name gets its own line, with Assigned, Spent and Available underneath",
+      "App updates from your server are more reliable: stalled downloads are retried, finished files are kept, and files come through Cloudflare unchanged"
+    ]
+  },
+  {
+    "version": "1.4.2",
+    "date": "2026-11-03",
+    "changes": [
+      "Budget tab: two ways to see categories. List shows Assigned, Spent and Available in columns with Spent in bold; Tiles shows each category as a ring that fills as you spend",
+      "Switch between them with List / Tiles under the search box (remembered on this device)"
+    ]
+  },
+  {
+    "version": "1.4.1",
+    "date": "2026-11-03",
+    "changes": [
+      "Undo now asks \"Are you sure?\" and names the change, so a stray tap on a toast can't undo anything",
+      "Short vibration on every tap (More → Feel to turn it off)",
+      "If your server only allows Cloudflare sign-ins, the app uses your away address instead of looping on \"Sign in again\""
+    ]
+  },
+  {
+    "version": "1.4.0",
+    "date": "2026-11-03",
+    "changes": [
+      "Bill reminders in the Android app: a morning notification when a scheduled bill is due, offline or connected (More → Reminders)",
+      "Monthly report: summary, categories, balances and every transaction, saved as a PDF (Reports → Monthly report)",
+      "About & privacy: RightToOwn's four rules, what each permission is for, the privacy policy and open-source licenses",
+      "Connect button checks your server itself; pop-ups look like the rest of the app"
+    ]
+  },
+  {
+    "version": "1.3.0",
+    "date": "2026-11-03",
+    "changes": [
+      "Android app: connect your own Budget server (optional) under More → Your own server, with a home address and an optional away address",
+      "Away address behind Cloudflare Access: sign in inside the app, or use a Cloudflare service token",
+      "First connect asks whether to use the server's budget or merge both; matching categories and accounts are combined, and a safety copy of the phone's budget is kept first",
+      "The app picks up new screens and features from your server (\"Update ready\") without installing a new app",
+      "Disconnect returns to offline mode and keeps your budget on the phone",
+      "Server: new AUTH_MODE=open (the default) leaves protection to you, e.g. open on your home network and Cloudflare Access from outside"
+    ]
+  },
+  {
+    "version": "1.2.0",
+    "date": "2026-11-03",
+    "changes": [
+      "Android app: works fully offline by default, with no server and no account; your budget stays on the phone",
+      "If Android hides a Wallet notification's details, the app still asks you to log the purchase (you type the amount), with a tip in Settings on how to get full details",
+      "Purchases made while the app was closed are picked up when it starts again",
+      "Tap-to-pay capture (Android): after a Google Wallet purchase, a prompt opens Quick add pre-filled with the merchant, amount, card account and date",
+      "Each card is remembered against the account you log it to",
+      "Export JSON now includes everything (scheduled items, payee rules and settings too)",
+      "Fonts are bundled with the app; nothing is loaded from Google Fonts any more",
+      "The app's built-in web engine no longer contacts Google (Safe Browsing and usage metrics are off)"
+    ]
+  },
+  {
+    "version": "1.1.2",
+    "date": "2026-11-03",
+    "changes": [
+      "Undo moved into the Menu (top item, shows what it will undo); the bottom bar is now a slim handle",
+      "Tap any toast right after a change to undo that change"
+    ]
+  },
+  {
+    "version": "1.1.1",
+    "date": "2026-11-03",
+    "changes": [
+      "Removed the appearance editor; the app keeps its standard look"
+    ]
+  },
+  {
+    "version": "1.0.2",
+    "date": "2026-11-03",
+    "changes": [
+      "Pull-up menu at the bottom: shows your last change with an Undo button, and the handle opens Budget table, Scheduled, Payee rules, Month review, Reminders, History and Settings",
+      "Header de-cluttered: Undo and More moved into the bottom bar; Age of money is a single line under Ready to Assign (tap for the meaning)",
+      "Accounts header stacks net worth over cash/debt so nothing overlaps on narrow screens"
+    ]
+  },
+  {
+    "version": "1.0.1",
+    "date": "2026-11-03",
+    "changes": [
+      "Cloudflare setup helper: with AUTH_MODE=cloudflare and no CF_ACCESS_AUD, the first visit prints the exact AUD line to set (in the container log and in the app's status)"
+    ]
+  },
+  {
+    "version": "1.0.0",
+    "date": "2026-11-03",
+    "changes": [
+      "Goals: each category is 'refill to amount monthly' or 'save amount by a date' (computes the per-month need); Fill to targets honors both",
+      "Restore from a server backup inside the app (More → Backup), with counts per snapshot and a YES confirmation",
+      "Nightly server-side integrity check; More → About shows 'Last verified' and a Verify now button",
+      "Close months: lock a month after reconciling — no edits or assignments inside it without reopening",
+      "Who entered it: initials on transactions once more than one person is using the budget",
+      "Due reminders: push notification the morning a scheduled bill is due (More → Reminders; needs the HTTPS address)",
+      "Home-screen shortcut: long-press the app icon → Add transaction",
+      "Month-end review: on the first open of a new month, a one-page look back (income, spent by group, saved, net worth change, age of money) with Cover all and Fill to targets for the new month; also from Reports",
+      "Budget table: categories × months with editable Assigned cells (Table button on the Budget tab; best on a tablet or unfolded screen)",
+      "Per-category 6-month spending bars with the target line, under each category",
+      "Income vs spending chart in Reports"
+    ]
+  },
+  {
+    "version": "0.10.0",
+    "date": "2026-11-03",
+    "changes": [
+      "↶ Undo in the header on every tab reverses the last change made on this device",
+      "Move money: tap a category → Move… → pick where from/to (another category or Ready to Assign) and how much",
+      "Split transactions: tap Split under the category and divide one receipt across categories; parts show a 'split' tag",
+      "Age of money on the Budget tab with a plain-language verdict, and a 6-month trend in Reports"
+    ]
+  },
+  {
+    "version": "0.9.9",
+    "date": "2026-11-03",
+    "changes": [
+      "Fix: Cover (and any assign) could write to a previously deleted budget row, so the toast said it was covered but the red stayed",
+      "Fix: two devices assigning to the same category in the same month could make sync fail; the server now reconciles them instead"
+    ]
+  },
+  {
+    "version": "0.9.8",
+    "date": "2026-11-03",
+    "changes": [
+      "Scheduled loan payments: a Transfer to an off-budget loan now takes a category, and posting it spends the category and lowers the loan — same as a manual payment",
+      "Scheduled list warns ⚠ when a loan transfer has no category"
+    ]
+  },
+  {
+    "version": "0.9.7",
+    "date": "2026-11-03",
+    "changes": [
+      "Loan guard: a Spent entry whose payee or category points at a loan (e.g. ACME AUTO FINANCE → Car loan) offers to become a loan payment that also lowers the balance",
+      "Money check flags possible duplicates (same account, same amount, same or next day) with one-tap delete"
+    ]
+  },
+  {
+    "version": "0.9.6",
+    "date": "2026-11-02",
+    "changes": [
+      "Tapping a category shows its 3 most recent transactions — tap to edit, ✕ to delete (with undo), 'All N' to see the rest",
+      "Transaction list: 'Uncleared first' and 'Largest' sorts now show the date on each row and keep newest first within ties"
+    ]
+  },
+  {
+    "version": "0.9.5",
+    "date": "2026-11-02",
+    "changes": [
+      "Add sheet: larger Payee box, and a visible Category field (type to search) under the chips",
+      "Assigning: an Add box puts in exactly what you type on top of what's there; 'use all' is a link, not the default"
+    ]
+  },
+  {
+    "version": "0.9.4",
+    "date": "2026-11-02",
+    "changes": [
+      "Favorite payees row above the Payee field (your most-used in the last 90 days, or rule payees to start) — one tap fills payee and category",
+      "Payee suggestions reappear when you clear and retype"
+    ]
+  },
+  {
+    "version": "0.9.3",
+    "date": "2026-11-02",
+    "changes": [
+      "Payee suggestions appear inline under the field (no more overlapping popup), include payees from your rules, and picking one also sets the category"
+    ]
+  },
+  {
+    "version": "0.9.2",
+    "date": "2026-11-02",
+    "changes": [
+      "Money check's overspent warning expands into a list with a Cover button per category and Cover all; tapping a row scrolls to it"
+    ]
+  },
+  {
+    "version": "0.9.1",
+    "date": "2026-11-02",
+    "changes": [
+      "Updates now apply over Cloudflare: the server tells Cloudflare not to cache sw.js/index.html, and the update banner activates the new build before reloading",
+      "What's new sheet is shorter (newest 3 versions, scrollable); More → About has a Check for update button"
+    ]
+  },
+  {
+    "version": "0.9.0",
+    "date": "2026-11-02",
+    "changes": [
+      "Pay loans and mortgages from a category: when a transfer goes to an off-budget loan, pick the category (e.g. 🏠 Mortgage) and one save both spends the category and lowers the loan balance",
+      "The category used last time for that loan is pre-selected"
+    ]
+  },
+  {
+    "version": "0.8.1",
+    "date": "2026-11-02",
+    "changes": [
+      "Money check no longer flags loan or off-budget starting balances as uncategorized; card starting debt gets its own line linking to the card",
+      "The uncategorized warning expands into a tappable list of all the transactions, not just the newest"
+    ]
+  },
+  {
+    "version": "0.8.0",
+    "date": "2026-11-02",
+    "changes": [
+      "Income categories: tick 'Income group' when adding a group (e.g. Paycheck, Cash deposit, Check deposit). Money still lands in Ready to Assign; the Budget tab shows an income summary and reports can break it down",
+      "Received transactions offer income categories as chips; spending ones never show income categories",
+      "Searchable category field (type to filter, alphabetical, group shown) in CSV import, scheduled items and payee rules"
+    ]
+  },
+  {
+    "version": "0.7.2",
+    "date": "2026-11-02",
+    "changes": [
+      "Budget tab search filters the category list as you type (and still lists matching transactions below)"
+    ]
+  },
+  {
+    "version": "0.7.1",
+    "date": "2026-11-02",
+    "changes": [
+      "Live transaction search on the Budget tab and inside each account (Accounts tab already had it)",
+      "Add sheet: 'More…' opens a type-to-filter category list, alphabetical, with the group shown beside each",
+      "Payee suggestions are alphabetical",
+      "Default account for new transactions: set under More → Defaults or from an account's ⋯ menu (per device)"
+    ]
+  },
+  {
+    "version": "0.7.0",
+    "date": "2026-11-02",
+    "changes": [
+      "More → Danger zone → Erase everything: wipes server and device after you type YES (a backup is saved first), so an import afterwards has no duplicates",
+      "Accounts tab shows a Ready to pay banner listing every card or loan with money set aside, with one-tap Pay",
+      "Android back button closes open sheets instead of leaving the app; at the root it asks you to press again to exit; the browser warns before closing the tab with unsynced changes",
+      "Sheets are truly modal now: the page behind can't be scrolled or tapped, and tapping outside no longer closes them",
+      "Add sheet: date and account on separate rows so the date isn't squeezed"
+    ]
+  },
+  {
+    "version": "0.6.0",
+    "date": "2026-11-02",
+    "changes": [
+      "History & undo (More tab): every change on this device is logged; imports, CSV imports, batch edits and fill-to-targets undo as one step",
+      "Delete / merge a category: its transactions, assigned money, scheduled items and rules move to the category you pick",
+      "Empty category groups show a delete link"
+    ]
+  },
+  {
+    "version": "0.5.2",
+    "date": "2026-11-02",
+    "changes": [
+      "On tablets and unfolded phones, the add sheet (and other sheets) open as a centered phone-width dialog instead of stretching across the screen"
+    ]
+  },
+  {
+    "version": "0.5.1",
+    "date": "2026-11-02",
+    "changes": [
+      "Add-transaction sheet is about a third shorter: tighter spacing, memo tucked behind '+ memo', smaller keypad"
+    ]
+  },
+  {
+    "version": "0.5.0",
+    "date": "2026-11-02",
+    "changes": [
+      "CSV import now has a Categorize-by-payee step: pick a category once per merchant, it applies to all their rows and is remembered as a rule",
+      "CSV import detects recurring charges (weekly, biweekly, monthly, yearly) and offers to add them to Scheduled",
+      "Quick-add offers 'Always Groceries for Corner Market' after you categorize a new payee — one tap makes the rule",
+      "Rules remain editable under More → Payee rules"
+    ]
+  },
+  {
+    "version": "0.4.1",
+    "date": "2026-11-02",
+    "changes": [
+      "Transactions: sort by Newest, Uncleared first, or Largest",
+      "Select mode on an account: tap Select, tick rows (or All), then Clear / Unclear / set Category / Delete in one go, with undo",
+      "Vibration on save, clear, keypad taps and deletes (Android)",
+      "Layout fixes for narrow and folding screens: nothing overflows, header scales, forms stack",
+      "CSV import understands more bank exports (preamble lines, YYYYMMDD dates, card charges auto-flipped)"
+    ]
+  },
+  {
+    "version": "0.4.0",
+    "date": "2026-11-02",
+    "changes": [
+      "Scheduled transactions: rent, paycheck, subscriptions show as Due on the Budget tab; Post or Skip, or set to post automatically",
+      "Money check card: cash vs categories vs held vs Ready to Assign, with overspent and uncategorized counts that tap through to the fix",
+      "Monthly targets per category with Fill to targets; Assign like last month",
+      "Spending pace on each category: $/day for the days left",
+      "Category notes",
+      "Payee rules (More tab): rename messy bank payees and default their category; applied when typing and on CSV import",
+      "CSV import into any account with column mapping, preview and duplicate detection (account ⋯ menu)",
+      "Search across all transactions from the Accounts tab",
+      "Account rename, reorder, close/reopen (history kept)",
+      "Reconcile reminders: badge after 30 days, or never reconciled",
+      "Reconciled transactions are locked; unlock explicitly to edit",
+      "Month rollover nudge when last month ended overspent",
+      "Undo toasts for deletes; save confirmation shows the category's new available",
+      "Net worth by month in Reports"
+    ]
+  },
+  {
+    "version": "0.3.0",
+    "date": "2026-11-02",
+    "changes": [
+      "Version number and connection indicator in the header (green synced, amber pending, grey offline, red server unreachable)",
+      "Update banner when the server is running a newer build; What's new sheet after updating",
+      "Credit cards show Ready to pay vs not covered, with one-tap Pay",
+      "Guard converts 'Spent' entries that look like card payments into transfers",
+      "Dark theme fixes for dropdowns and date pickers"
+    ]
+  },
+  {
+    "version": "0.2.0",
+    "date": "2026-11-01",
+    "changes": [
+      "New layout: dark header with tabs, floating add button, keypad quick-add sheet",
+      "Tap-to-clear circles on transactions, Uncleared filter, reconcile with adjustment",
+      "Hold for next month moves money between months' Ready to Assign",
+      "Budget rows with progress bars, overspent state and one-tap Cover"
+    ]
+  },
+  {
+    "version": "0.1.0",
+    "date": "2026-11-01",
+    "changes": [
+      "First build: accounts, budget, transfers, reports, offline sync, backups"
+    ]
+  }
+]

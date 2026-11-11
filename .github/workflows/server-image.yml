@@ -1,0 +1,63 @@
+# Builds the Once Budget server image for PCs/NAS boxes (amd64) and Raspberry Pi (arm64) and publishes it
+# to GitHub's container registry as ghcr.io/<owner>/once-budget, tagged with the version in
+# budget/package.json and "latest". Runs when the server or web app changes on main, or by hand.
+name: Server image
+on:
+  push:
+    branches: [main]
+    paths: ['budget/**', '.github/workflows/server-image.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: |
+          echo "version=$(node -p "require('./budget/package.json').version")" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/once-budget" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Test first (amd64): start it on a data folder owned by root, as Unraid and Docker create it,
+      # and check it creates its database and answers. Nothing is published if this fails.
+      - uses: docker/build-push-action@v6
+        with:
+          context: budget
+          platforms: linux/amd64
+          load: true
+          tags: once-budget:test
+          cache-from: type=gha
+      - name: Smoke test
+        run: |
+          sudo mkdir -p /tmp/obdata && sudo chown root:root /tmp/obdata && sudo chmod 755 /tmp/obdata
+          docker run -d --name ob -p 8080:8080 -v /tmp/obdata:/data -e PUID=99 -e PGID=100 -e AUTH_MODE=password once-budget:test
+          for i in $(seq 1 30); do curl -fs http://localhost:8080/healthz >/dev/null && break; sleep 1; done
+          docker logs ob
+          curl -fs http://localhost:8080/healthz
+          sudo test -f /tmp/obdata/budget.db
+          test "$(sudo stat -c %u:%g /tmp/obdata/budget.db)" = "99:100"
+          docker rm -f ob
+      - uses: docker/build-push-action@v6
+        with:
+          context: budget
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ steps.v.outputs.image }}:${{ steps.v.outputs.version }}
+            ${{ steps.v.outputs.image }}:latest
+          labels: |
+            org.opencontainers.image.title=Once Budget server
+            org.opencontainers.image.description=Self-hosted sync server for the Once Budget app by RightToOwn LLC
+            org.opencontainers.image.version=${{ steps.v.outputs.version }}
+            org.opencontainers.image.licenses=AGPL-3.0-only
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
