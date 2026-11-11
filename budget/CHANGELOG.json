@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.55.0",
+    "date": "2026-11-10",
+    "changes": [
+      "Money taken from next month now shows on the Budget tab until it's repaid: \"↪ Owed to December\" in the month that borrowed and \"↩ Paying back November\" in the next, with what it covered and when",
+      "Tap it for the details: how much is still owed, how much money coming in has already paid back (oldest first), and Undo for each one. The covered category says so too"
+    ]
+  },
+  {
     "version": "1.54.2",
     "date": "2026-11-10",
     "changes": [

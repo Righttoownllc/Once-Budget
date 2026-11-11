@@ -17,7 +17,7 @@ import { Icon, IconField, NameField } from './IconField.jsx';
 import { catIcon } from '../icons.jsx';
 import { Dashboard, useWidth, WIDE_MIN } from './Dashboard.jsx';
 import { overPlan, planCheck } from '../features.js';
-import { isClosedMonth, ageOfMoney, moneyCheck, pace, fillToTargets, assignLikeLastMonth, rolloverCheck, dueScheduled, postScheduled, skipScheduled, autoPostDue, perBudget, autoRoll, coverFrom, spendSplit, cardPartOfOverspend, clearStaleBorrow } from '../features.js';
+import { isClosedMonth, ageOfMoney, moneyCheck, pace, fillToTargets, assignLikeLastMonth, rolloverCheck, dueScheduled, postScheduled, skipScheduled, autoPostDue, perBudget, autoRoll, coverFrom, spendSplit, cardPartOfOverspend, clearStaleBorrow, borrowItems, undoBorrow } from '../features.js';
 import { Help } from './Info.jsx';
 import { staleTips, TIP_REMIND_DAYS } from '../tips.js';
 import { TipClear } from './TipClear.jsx';
@@ -142,6 +142,7 @@ export function Budget({ data }) {
         </div>
       )}
 
+      <Borrows data={data} month={month} ui={ui} />
       {closed && <div class="lock"><span style="font-size:18px">🔒</span><div class="col" style="flex:1"><b>{monthLabel(month)} is closed</b><span>Assignments are locked. Reopen under Settings › Budget rules if you need to change it.</span></div></div>}
 
       {/* 5. Money check */}
@@ -269,7 +270,7 @@ export function Budget({ data }) {
         {mc.staleBorrow && (
           <div class="warn amber">
             <span>{fmt(mc.staleBorrow.extra)} taken from {monthLabel(mc.staleBorrow.month).split(' ')[0]}'s money no longer covers anything (not counted)</span>
-            <button class="ghost" style="min-height:32px;padding:4px 10px" onClick={async () => { await clearStaleBorrow(mc.staleBorrow); ui.toast('Cleared'); }}>Clear</button>
+            <button class="ghost" style="min-height:32px;padding:4px 10px" onClick={async () => { await clearStaleBorrow(mc.staleBorrow, data); ui.toast('Cleared'); }}>Clear</button>
           </div>
         )}
       </div>
@@ -556,6 +557,7 @@ function CategoryRow({ view = 'list', showGroup = false, c, month, open, picked,
         <>
           {closed && <div class="head">🔒 Month closed — assignments locked.</div>}
           <PaidWith data={data} month={month} c={c} />
+          <BorrowNote data={data} month={month} c={c} />
           <div class="edit" style={closed ? 'opacity:.5;pointer-events:none' : ''}>
             <label class="head" style="display:flex;flex-direction:column;gap:2px">Assigned this month
               <input class="num" inputMode="decimal" value={val ?? (c.assigned / 100).toFixed(2)} onFocus={e => e.target.select()}
@@ -662,7 +664,7 @@ function ReadySheet({ start, data, v, month, nextName, closed, onClose }) {
           {mc.staleBorrow && (
             <div class="warn amber col" style="align-items:stretch;gap:6px">
               <span><b>Something doesn't add up.</b> {fmt(mc.staleBorrow.extra)} "taken from {monthLabel(mc.staleBorrow.month).split(' ')[0]}'s money" no longer covers anything: the overspending it covered was deleted or covered another way. It's not counted, so your figures here are right; clear it to tidy up.</span>
-              <button class="primary" onClick={async () => { await clearStaleBorrow(mc.staleBorrow); ui.toast('Cleared'); }}>Clear the leftover {fmt(mc.staleBorrow.extra)}</button>
+              <button class="primary" onClick={async () => { await clearStaleBorrow(mc.staleBorrow, data); ui.toast('Cleared'); }}>Clear the leftover {fmt(mc.staleBorrow.extra)}</button>
             </div>
           )}
           {diff === 0
@@ -698,6 +700,68 @@ function ReadySheet({ start, data, v, month, nextName, closed, onClose }) {
       </div>
     </div>
   ), document.body);
+}
+
+const shortMonth = m => monthLabel(m).split(' ')[0];
+const dayOf = d => (d ? new Date(d + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '');
+
+/**
+ * Money moved between months to cover overspending, shown like a category until it's repaid:
+ * "Owed to December" in the month that borrowed, "Paying back November" in the month after.
+ * Tap for what it covered, when, and Undo.
+ */
+function Borrows({ data, month, ui }) {
+  const [open, setOpen] = useState(null);   // the borrowing month whose details are open
+  const prev = addMonths(month, -1);
+  const out = borrowItems(data, month), back = borrowItems(data, prev);
+  const Row = ({ m, b, label, sub }) => (
+    <button type="button" class="borrowrow" onClick={() => setOpen(m)} aria-label={`${label}: ${fmt(b.owed)}. Show details`}>
+      <span class="col" style="min-width:0;flex:1;text-align:left"><b>{label}</b><span class="head">{sub}</span></span>
+      <b class="money neg">−{fmt(b.owed)}</b><span class="head" aria-hidden="true">›</span>
+    </button>
+  );
+  const what = b => b.items.filter(x => x.owed > 0).map(x => `${x.name}${x.date ? ' · ' + dayOf(x.date) : ''} · ${fmt(x.owed)}`).join(' · ');
+  return (
+    <>
+      {back.owed > 0 && <Row m={prev} b={back} label={`↩ Paying back ${shortMonth(prev)}`} sub={`${shortMonth(prev)} covered overspending with this month's money: ${what(back)}`} />}
+      {out.owed > 0 && <Row m={month} b={out} label={`↪ Owed to ${shortMonth(addMonths(month, 1))}`} sub={what(out)} />}
+      {open && <BorrowSheet data={data} month={open} ui={ui} onClose={() => setOpen(null)} />}
+    </>
+  );
+}
+
+function BorrowSheet({ data, month, ui, onClose }) {
+  useModal(onClose);
+  const b = borrowItems(data, month);
+  const next = addMonths(month, 1);
+  const total = b.items.reduce((s, x) => s + x.amount, 0);
+  if (!b.owed) { setTimeout(onClose, 0); return null; }
+  return createPortal((
+    <div class="scrim" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div class="sheet" role="dialog" aria-modal="true" aria-label={`Owed to ${shortMonth(next)}`}>
+        <div class="handle" />
+        <div class="row between"><b>{shortMonth(month)} owes {shortMonth(next)} {fmt(b.owed)}</b><button class="ghost" onClick={onClose}>Close</button></div>
+        <span class="head">Overspending in {shortMonth(month)} was covered with {shortMonth(next)}'s money. {shortMonth(next)}'s Ready to assign starts {fmt(b.owed)} lower to pay it back.{total > b.owed ? ` Money that came in during ${shortMonth(month)} has already paid back ${fmt(total - b.owed)}.` : ` Money that comes in during ${shortMonth(month)} pays it back first, by itself.`}</span>
+        <div class="col" style="gap:6px">
+          {b.items.filter(x => x.owed > 0).map(x => (
+            <div class="borrowitem row between">
+              <span class="col" style="min-width:0"><b>{x.name}</b><span class="head">{x.date ? `Covered ${dayOf(x.date)}` : 'Covered earlier'}{x.amount !== x.owed ? ` · ${fmt(x.amount)}, ${fmt(x.amount - x.owed)} paid back` : ''}</span></span>
+              <span class="row" style="gap:8px;flex:none"><b class="money neg">−{fmt(x.owed)}</b>
+                {x.cat && <button class="ghost small" onClick={async () => { await undoBorrow(data, month, x); ui.toast(`${x.name} is overspent again`); }}>Undo</button>}</span>
+            </div>
+          ))}
+        </div>
+        <span class="head">Undo takes the money back out of the category, so it's overspent again, and {shortMonth(next)} no longer pays for it.</span>
+      </div>
+    </div>
+  ), document.body);
+}
+
+/** On a category covered with next month's money: when, and how much is still owed. */
+function BorrowNote({ data, month, c }) {
+  const mine = borrowItems(data, month).items.filter(x => x.cat === c.id && x.owed > 0);
+  if (!mine.length) return null;
+  return <div class="head borrownote">↪ Covered {mine.map(x => `${fmt(x.owed)} on ${dayOf(x.date)}`).join(' and ')} with {shortMonth(addMonths(month, 1))}'s money.</div>;
 }
 
 /** How this month's spending in a category was paid: credit cards (each) versus cash or debit. */

@@ -971,3 +971,9 @@ button.who { padding: 0; min-height: 0; border: 0; cursor: pointer; }
 .selbar .selectbtn .pc { color: inherit; }
 .selectbtn.levelpick { margin-top: 4px; min-height: 34px; padding: 4px 8px; font-size: 13px; width: auto; max-width: 100%; }
 .acctdate .field .selectbtn { min-width: 0; }
+
+/* Money owed between months (covering overspending with next month's money) */
+.borrowrow { display: flex; align-items: center; gap: 10px; width: 100%; background: var(--card); color: var(--ink); border: 1px dashed var(--neg); border-radius: 14px; padding: 10px 12px; margin: 0 0 8px; }
+.borrowrow .head { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.borrowitem { background: var(--chip); border-radius: 12px; padding: 8px 10px; gap: 8px; }
+.borrownote { color: var(--neg); }

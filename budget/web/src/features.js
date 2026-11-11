@@ -678,16 +678,23 @@ export async function coverFrom(data, month, ids, src, amount, label, caps = nul
   beginBatch(label);
   try {
     let left = amount;
+    const took = [];
     for (const id of ids) {
       const r = rows.find(x => x.id === id);
       if (!r || r.available >= 0 || left <= 0) continue;
       const take = Math.min(left, -r.available, caps ? caps[r.id] ?? 0 : Infinity);
       if (take <= 0) continue;
       await assign(r.id, month, r.assigned + take);
+      took.push({ cat: r.id, amount: take });
       left -= take;
     }
     const used = amount - left;
-    if (src === 'next') await assign(BORROW, addMonths(month, 1), -(borrowedFromNext(data, month) + used));
+    if (src === 'next') {
+      // The borrow itself (what the math uses), and what it covered (so it can be shown until repaid).
+      const kept = borrowItems(data, month).items.filter(x => x.owed > 0).map(x => ({ cat: x.cat, amount: x.owed, date: x.date }));
+      await assign(BORROW, addMonths(month, 1), -(borrowedFromNext(data, month) + used));
+      await setPref(borrowKey(month), JSON.stringify([...kept, ...took.map(t => ({ ...t, date: today() }))]));
+    }
     else if (src !== 'rta') { const s = rows.find(x => x.id === src); await assign(src, month, s.assigned - used); }
     return used;
   } finally { endBatch(); }
@@ -724,4 +731,43 @@ export function cardPartOfOverspend(data, month, row) {
 }
 
 /** Clears the part of a "take from next month" that no longer covers anything. */
-export const clearStaleBorrow = sb => assign(BORROW, sb.month, -sb.used);
+export async function clearStaleBorrow(sb, data) {
+  const month = addMonths(sb.month, -1);
+  beginBatch(`Cleared a leftover ${fmt(sb.extra)} taken from next month`);
+  try {
+    await assign(BORROW, sb.month, -sb.used);
+    if (data) await setPref(borrowKey(month), JSON.stringify(borrowItems(data, month).items.filter(x => x.owed > 0).map(x => ({ cat: x.cat, amount: x.owed, date: x.date }))));
+  } finally { endBatch(); }
+}
+
+// ---- Money borrowed from next month ------------------------------------------
+/** The record of what a month's borrows from the next month covered: household_prefs "borrow:<month>". */
+export const borrowKey = month => 'borrow:' + month;
+/**
+ * What `month` borrowed from the next month, and what for: { owed, items: [{ cat, name, date, amount,
+ * owed }] }. owed is what still counts (money that came in later has paid the oldest back first). Borrows
+ * from before this was recorded show as one item with no category.
+ */
+export function borrowItems(data, month) {
+  const owed = monthView(data, month).borrowed_from_next;
+  let log = []; try { log = JSON.parse(data.prefs?.[borrowKey(month)] || '[]'); } catch {}
+  const name = id => data.categories.find(c => c.id === id)?.name || 'A deleted category';
+  const total = log.reduce((s, x) => s + x.amount, 0);
+  let repaid = Math.max(0, total - owed);
+  const items = log.map(x => { const r = Math.min(repaid, x.amount); repaid -= r; return { ...x, name: name(x.cat), owed: x.amount - r }; });
+  if (owed > total) items.push({ cat: null, name: 'Overspending', date: null, amount: owed - total, owed: owed - total });
+  return { owed, items };
+}
+
+/** Undoes one borrow item: the category gives back what's still owed (it's overspent again), and the borrow shrinks. */
+export async function undoBorrow(data, month, item) {
+  const v = monthView(data, month);
+  const row = v.groups.flatMap(g => g.rows).find(r => r.id === item.cat);
+  const { items } = borrowItems(data, month);
+  beginBatch(`Undid ${fmt(item.owed)} from ${new Date(addMonths(month, 1) + '-15').toLocaleString(undefined, { month: 'long' })}'s money${row ? ' for ' + row.name : ''}`);
+  try {
+    if (row) await assign(row.id, month, row.assigned - item.owed);
+    await assign(BORROW, addMonths(month, 1), -(v.borrowed_from_next - item.owed));
+    await setPref(borrowKey(month), JSON.stringify(items.filter(x => x !== items.find(y => y.cat === item.cat && y.date === item.date)).filter(x => x.owed > 0 && x.cat).map(x => ({ cat: x.cat, amount: x.owed, date: x.date }))));
+  } finally { endBatch(); }
+}
