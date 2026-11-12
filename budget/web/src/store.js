@@ -181,7 +181,9 @@ function refuse() {
 function check(tbl, row, before) {
   if (canChangeAll()) return null;
   if (tbl === 'household_prefs') return 'quiet';   // conveniences (remembered cards, badges): just not saved
-  if (access.role === 'spender' && tbl === 'transactions' && (!before || before.created_by === access.actor)) return null;
+  // "Add purchases": their own purchases only (money out, not a transfer), like the server.
+  const purchase = r => !r || r.deleted || (!r.transfer_id && Number(r.amount) <= 0);
+  if (access.role === 'spender' && tbl === 'transactions' && (!before || before.created_by === access.actor) && purchase(row) && purchase(before)) return null;
   refuse();
 }
 

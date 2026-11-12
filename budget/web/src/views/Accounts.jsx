@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { Shell, useUI, nav } from '../main.jsx';
 import { balances, fmt, parseMoney, today, dayLabel, ym, cardCoverage, newestFirst, stampLabel, monthView } from '../budget.js';
-import { put, remove, restore, haptic, beginBatch, endBatch } from '../store.js';
+import { put, remove, restore, haptic, beginBatch, endBatch, canChangeAll } from '../store.js';
 import { tell, ask } from '../dialog.js';
 import { Roll } from './Roll.jsx';
 import { Empty } from './Empty.jsx';
@@ -90,7 +90,7 @@ function ReadyToPay({ data, cards }) {
           <div class="row between">
             <button type="button" class="col linkish" style="text-align:left;background:none;padding:0" aria-expanded={open === a.id} onClick={() => setOpen(open === a.id ? null : a.id)}>
               <span style="font-weight:500">{a.name} <span class="head">{open === a.id ? '▴' : '▾'}</span></span><span class="head">{fmt(c.ready)} of {fmt(c.debt)} covered{c.uncovered ? ` · ${fmt(c.uncovered)} not yet` : ''}</span></button>
-            <button class="primary" style="min-height:36px;padding:6px 12px" onClick={() => ui.open({ account_id: from, pay_to: a.id, amount: c.ready })}>Pay {fmt(c.ready)}</button>
+            {canChangeAll() && <button class="primary" style="min-height:36px;padding:6px 12px" onClick={() => ui.open({ account_id: from, pay_to: a.id, amount: c.ready })}>Pay {fmt(c.ready)}</button>}
           </div>
           {open === a.id && <ReadySources acct={a} data={data} c={c} payoff={payoff} />}
         </div>
@@ -245,7 +245,7 @@ export function AccountDetail({ data, id }) {
       <div class={'strip ' + (liability && acct.balance < 0 ? 'owe' : '')}>
         <div class="col"><span class="head">Balance</span><Roll class={'money ' + (acct.balance < 0 ? 'neg' : '')} style="font-size:20px;font-weight:700" value={acct.balance} ms={900} /></div>
         <div class="col" style="margin-left:auto;text-align:right"><span class="head">Cleared</span><Roll class="money" style="font-weight:600" value={acct.cleared_balance} ms={900} /></div>
-        {liability
+        {!canChangeAll() ? null : liability
           ? <button class="dark" onClick={() => ui.open({ account_id: data.accounts.find(a => !a.closed && !isLiability(a.type))?.id, pay_to: id })}>Pay {acct.type === 'loan' ? 'loan' : 'card'}</button>
           : <button class="dark" onClick={() => ui.open({ account_id: id, kind: 'transfer' })}>Transfer</button>}
       </div>
@@ -370,7 +370,7 @@ function CoverageCard({ acct, data, onPay }) {
       <div class="row between">
         <div class="col"><span class="eyebrow">Ready to pay <Help k="readytopay" /></span><b class="money pos" style="font-size:20px">{fmt(c.ready)}</b></div>
         <div class="col" style="text-align:right"><span class="eyebrow">Of balance</span><span class="money" style="font-weight:600">{fmt(c.debt)}</span></div>
-        <button class="primary" disabled={c.ready === 0} onClick={() => onPay(c.ready)}>Pay {fmt(c.ready)}</button>
+        {canChangeAll() && <button class="primary" disabled={c.ready === 0} onClick={() => onPay(c.ready)}>Pay {fmt(c.ready)}</button>}
       </div>
       <div class="bar"><i style={`width:${Math.round(c.ready / c.debt * 100)}%`} /></div>
       {c.ready > 0 && <ReadySources acct={acct} data={data} c={c} payoff={payoff} />}

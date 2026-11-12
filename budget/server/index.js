@@ -291,7 +291,7 @@ api.post('/sync', async c => {
       for (const row of incoming[t] || []) {
         if (!row || !row.id) continue;
         const prev = db.prepare(`SELECT * FROM ${t} WHERE id = ? AND household_id = ?`).get(row.id, hh);
-        if (!mayWrite(role, actor, t, prev)) { (refused[t] ||= []).push(row.id); if (prev) (current[t] ||= []).push(prev); continue; }
+        if (!mayWrite(role, actor, t, prev, row)) { (refused[t] ||= []).push(row.id); if (prev) (current[t] ||= []).push(prev); continue; }
         const r = upsert(t, row, hh, actor); if (r.conflict) conflicts++; else applied[t]++;
       }
     }
@@ -300,19 +300,19 @@ api.post('/sync', async c => {
 });
 
 // Simple REST for scripting / curl testing.
-const rowOk = (c, t, id) => mayWrite(c.get('role'), c.get('user').email, t, id ? db.prepare(`SELECT * FROM ${t} WHERE id = ? AND household_id = ?`).get(id, c.get('hh')) : undefined);
+const rowOk = (c, t, id, row = null) => mayWrite(c.get('role'), c.get('user').email, t, id ? db.prepare(`SELECT * FROM ${t} WHERE id = ? AND household_id = ?`).get(id, c.get('hh')) : undefined, row);
 const notAllowed = c => c.json({ error: c.get('role') === 'viewer' ? 'You can view this budget but not change it.' : 'You can add purchases in this budget, and change the ones you added. Ask an owner for anything else.' }, 403);
 /** Route guard: people who can change everything in the budget (owners and members). */
 const editorsOnly = async (c, next) => (canChangeAll(c.get('role')) ? next() : notAllowed(c));
 for (const t of SYNC_TABLES) {
   api.get(`/${t}`, c => c.json(list(t, c.get('hh'))));
-  api.post(`/${t}`, async c => { const b = await c.req.json(); return rowOk(c, t, b.id) ? c.json(upsert(t, b, c.get('hh'), c.get('user').email)) : notAllowed(c); });
-  api.put(`/${t}/:id`, async c => (rowOk(c, t, c.req.param('id')) ? c.json(upsert(t, { ...(await c.req.json()), id: c.req.param('id'), updated_at: now() }, c.get('hh'), c.get('user').email)) : notAllowed(c)));
-  api.delete(`/${t}/:id`, c => (rowOk(c, t, c.req.param('id')) ? c.json(softDelete(t, c.req.param('id'), c.get('hh'))) : notAllowed(c)));
+  api.post(`/${t}`, async c => { const b = await c.req.json(); return rowOk(c, t, b.id, b) ? c.json(upsert(t, b, c.get('hh'), c.get('user').email)) : notAllowed(c); });
+  api.put(`/${t}/:id`, async c => { const b = await c.req.json(); return rowOk(c, t, c.req.param('id'), b) ? c.json(upsert(t, { ...b, id: c.req.param('id'), updated_at: now() }, c.get('hh'), c.get('user').email)) : notAllowed(c); });
+  api.delete(`/${t}/:id`, c => (rowOk(c, t, c.req.param('id'), { deleted: 1 }) ? c.json(softDelete(t, c.req.param('id'), c.get('hh'))) : notAllowed(c)));
 }
 
 // Convenience: create both legs of a transfer in one call.
-api.post('/transfer', async (c, next) => (c.get('role') === 'viewer' ? notAllowed(c) : next()), async c => {
+api.post('/transfer', editorsOnly, async c => {   // transfers (and card payments) aren't purchases
   const hh = c.get('hh');
   const { from_account_id, to_account_id, amount, date, memo = '' } = await c.req.json();
   const transfer_id = crypto.randomUUID();

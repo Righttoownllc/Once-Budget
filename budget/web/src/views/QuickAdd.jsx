@@ -2,7 +2,7 @@ import { createPortal } from 'preact/compat';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { ask } from '../dialog.js';
 import { fmt, today, payeeMemory, frequentCategories, monthView, ym, addDays, parseMoney, stampLabel } from '../budget.js';
-import { put, remove, transfer, restore, haptic, beginBatch, endBatch, uuid, setPref } from '../store.js';
+import { put, remove, transfer, restore, haptic, beginBatch, endBatch, uuid, setPref, canChangeAll } from '../store.js';
 import { finishCapture, canOpenWallet, openWallet } from '../platform.js';
 import { cardKey, cardLabel, refreshCaptures, doneCapture, captureTxId } from '../captures.js';
 import { useUI, useModal } from '../main.jsx';
@@ -45,7 +45,9 @@ export function QuickAdd({ data, opts, onClose }) {
   const catById = Object.fromEntries(data.categories.map(c => [c.id, c]));
   const groupName = Object.fromEntries(data.groups.map(g => [g.id, g.name]));
 
-  const [kind, setKind] = useState(editing ? (otherLeg ? 'transfer' : editing.amount > 0 ? 'in' : 'out') : opts.kind || (opts.pay_to ? 'transfer' : 'out'));
+  // "Add purchases" people log purchases only: no income, transfers or card payments.
+  const onlySpent = !canChangeAll();
+  const [kind, setKind] = useState(editing ? (otherLeg ? 'transfer' : editing.amount > 0 ? 'in' : 'out') : onlySpent ? 'out' : opts.kind || (opts.pay_to ? 'transfer' : 'out'));
   // A tip the bank hasn't posted: the amount box holds what the bank shows (before the tip).
   const startTip = editing && !otherLeg ? tipWaiting(editing) : 0;
   const [digits, setDigits] = useState(editing ? String(Math.abs(editing.amount) - startTip) : opts.amount ? String(opts.amount) : '');
@@ -296,7 +298,7 @@ export function QuickAdd({ data, opts, onClose }) {
         <div class="handle" />
         <div class="row between">
           <div class="seg" style="flex:1">
-            {[['out', 'Spent'], ['in', 'Received'], ['transfer', 'Transfer']].map(([k, l]) => (
+            {[['out', 'Spent'], ['in', 'Received'], ['transfer', 'Transfer']].filter(([k]) => !onlySpent || k === 'out' || k === kind).map(([k, l]) => (
               <button class={kind === k ? 'on' : ''} onClick={() => setKind(k)}>{l}</button>
             ))}
           </div>

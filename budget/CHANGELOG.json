@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.56.1",
+    "date": "2026-11-11",
+    "changes": [
+      "Fixed: people shared at \"Add purchases\" could pay cards, make transfers and add income. They now add and change their own purchases only: Pay card and Transfer are hidden for them, Quick add offers just Spent, and the server refuses anything else"
+    ]
+  },
+  {
     "version": "1.56.0",
     "date": "2026-11-10",
     "changes": [

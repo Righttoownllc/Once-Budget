@@ -114,10 +114,18 @@ export const canChangeAll = role => role === 'owner' || role === 'member';
  * Whether a change to one row is allowed for this role. prev: the row as the server has it (or
  * undefined for a new one); actor: the person's identity (what transactions record in created_by).
  */
-export function mayWrite(role, actor, tbl, prev) {
+/**
+ * Whether someone at this level may write this row. "Add purchases" (spender) people may add and
+ * change their own purchases only: money going out, not a transfer (so no card or loan payments, no
+ * moving money between accounts) and no income. Deleting their own purchase is allowed.
+ */
+export function mayWrite(role, actor, tbl, prev, row = null) {
   if (canChangeAll(role)) return true;
   if (role !== 'spender' || tbl !== 'transactions') return false;
-  return !prev || prev.created_by === actor;
+  if (prev && prev.created_by !== actor) return false;
+  if (row && !row.deleted && (row.transfer_id || Number(row.amount) > 0)) return false;
+  if (prev && (prev.transfer_id || Number(prev.amount) > 0)) return false;
+  return true;
 }
 const owners = hh => db.prepare("SELECT COUNT(*) c FROM members WHERE household_id = ? AND role = 'owner'").get(hh).c;
 /** Removes someone from a budget. A budget always keeps at least one owner. */
