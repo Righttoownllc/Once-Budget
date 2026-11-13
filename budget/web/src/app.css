@@ -336,7 +336,7 @@ html.modal-open, body.modal-open { overflow: hidden; }
 #privacy p { margin: 4px 0; font-size: 14px; }
 /* Budget tab: category views (list = columns, tiles = rings). Chosen per device. */
 .viewseg { margin: 0 14px; } .viewseg button { flex: 1; }
-.ccols, .crow { display: grid; grid-template-columns: minmax(0, 1fr) 68px 84px 88px; gap: 4px; align-items: center; }
+.ccols, .crow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(68px, max-content) minmax(84px, max-content) minmax(88px, max-content); gap: 4px; column-gap: 6px; align-items: center; }
 /* Narrow screens (folded phones, small phones): name on its own line, the three amounts under it. */
 @media (max-width: 400px) {
   .ccols, .crow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -574,17 +574,20 @@ button.catbtn span:first-child { overflow: hidden; text-overflow: ellipsis; whit
 button.catbtn.small { min-height: 0; padding: 4px 6px; font-size: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
 .catsheet { max-height: 92vh; display: flex; flex-direction: column; gap: 8px; }
 .catsearch { width: 100%; }
+/* One line per category (name left, what's left right), grouped, so a long list stays quick to scan. */
 .catscroll { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-bottom: 8px; }
-.catscroll .eyebrow { margin-top: 6px; }
-.ctiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; }
-.ctile { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 4px; min-height: 60px; padding: 8px 10px; border-radius: 12px; border: 2px solid transparent; background: var(--chip); color: inherit; text-align: left; font-weight: 500; }
-.ctile .nm { font-size: 13.5px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.ctile .amt { font-size: 13px; font-weight: 700; }
+.catscroll > * { flex-shrink: 0; }
+.catscroll .eyebrow { margin-top: 8px; }
+.ctiles { display: flex; flex-direction: column; background: var(--chip); border-radius: 12px; overflow: hidden; }
+.ctile { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 6px 12px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: var(--chip); color: inherit; text-align: left; font-weight: 500; width: 100%; }
+.ctiles .ctile:last-child { border-bottom: 0; }
+.ctile .nm { font-size: 15px; line-height: 1.2; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ctile .amt { font-size: 14px; font-weight: 700; flex: none; }
 .ctile.pos .amt { color: var(--pos); } .ctile.zero .amt { color: #B7791F; } .ctile.neg .amt { color: var(--neg); }
 .ctile.neg { background: var(--neg-bg); }
 .ctile.none { min-height: 44px; justify-content: center; color: var(--muted, #8a94a6); }
-.ctile.on { border-color: var(--pos); background: var(--pos-bg, rgba(46,139,87,.1)); }
-.ctile:active { transform: scale(.97); }
+.ctile.on { background: var(--pos-bg, rgba(46,139,87,.1)); box-shadow: inset 4px 0 0 var(--pos); }
+.ctile:active { filter: brightness(1.15); }
 
 /* Settings home */
 .setlist { padding: 4px 0; gap: 0; }
@@ -980,3 +983,14 @@ button.who { padding: 0; min-height: 0; border: 0; cursor: pointer; }
 .covernotes { display: flex; flex-direction: column; gap: 2px; margin: 0 0 6px; }
 .catlink { display: inline; padding: 0; min-height: 0; background: none; border: 0; font: inherit; font-weight: 600; color: var(--pos); text-decoration: underline; text-underline-offset: 2px; }
 .borrowitem .catlink { font-size: 15px; text-align: left; }
+
+/* Large amounts ($10,000 and up) on category rows: columns grow to fit and the numbers get a little
+   smaller, so the three never run into each other. */
+.crow > span { min-width: 0; white-space: nowrap; }
+.crow .a.long { font-size: 12px; letter-spacing: -.2px; }
+.crow .s.long { font-size: 13.5px; letter-spacing: -.2px; }
+.crow .av.long { font-size: 12.5px; padding: 2px 6px; letter-spacing: -.2px; }
+/* A purchase whose tip the bank hasn't posted yet: a small note under its amount. */
+.txamt { display: flex; flex-direction: column; align-items: flex-end; flex: none; }
+.tipwait { font-size: 11px; font-weight: 600; color: #d97706; white-space: nowrap; }
+@media (prefers-color-scheme: dark) { .tipwait { color: #f59e0b; } }

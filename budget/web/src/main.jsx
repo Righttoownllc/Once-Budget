@@ -89,32 +89,75 @@ addEventListener('popstate', () => {
     return;
   }
   if (history.state && history.state.root) {
-    if (Date.now() - lastRootPop < 2500) { isNative ? exitApp() : history.back(); return; }   // second press: really leave
+    // Back on Budget: say how to leave, and stay on the first entry. Nothing is added here (Android
+    // would skip an entry added without a tap): Back again leaves the app, and the next tap adds the
+    // Budget entry back (arm(), below), so the prompt works again after that.
     lastRootPop = Date.now();
     exitToast();
-    history.pushState({ page: true }, '');
+    return;
   }
+  // Back walked to an earlier screen: the trail is as deep as that entry.
+  const depth = (history.state && history.state.depth) || 0;
+  trail = trail.slice(0, depth);
+  if (depth) trail[depth - 1] = location.hash;
+  saveTrail();
 });
-// History is kept flat: [root, Budget, at most one other screen]. Going from Budget to a screen adds
-// one entry; moving between other screens replaces it. So Back from anywhere lands on Budget, and
-// Back on Budget asks to exit. Pop-ups add their own entry on top (useModal).
+// History is [root, Budget, then one entry per screen opened since Budget]. Each entry is added when
+// you tap your way to a screen, never while going Back: Android's WebView skips history entries that
+// weren't added by a tap, and with only those left behind, Back would close the app. Back walks back
+// through the entries one screen at a time, then to Budget; Back on Budget asks to exit (in a browser;
+// the Android app leaves). Opening a screen that's already in the trail goes back to it, so the
+// trail never loops. Pop-ups add their own entry on top (useModal). state.depth = place in the trail.
 const HOME = '#/budget';
+const TRAIL_KEY = 'budget.trail';
+let trail = (() => { try { const t = JSON.parse(sessionStorage.getItem(TRAIL_KEY) || '[]'); return Array.isArray(t) ? t : []; } catch { return []; } })();
+const saveTrail = () => { try { sessionStorage.setItem(TRAIL_KEY, JSON.stringify(trail)); } catch {} };
+const depthNow = () => (history.state && typeof history.state.depth === 'number' ? history.state.depth : history.state && history.state.modal ? trail.length : 0);
+// A screen changed in place (location.replace) takes the place of its entry in the trail.
+addEventListener('hashchange', () => {
+  const d = depthNow();
+  if (d > 0 && location.hash && location.hash !== HOME) { trail[d - 1] = location.hash; trail.length = d; saveTrail(); }
+});
+/** Back as on Android: one screen back, else to `fallback` (Budget unless said). */
+export function goBack(fallback = HOME) {
+  if (modalStack.length || depthNow() > 0) { history.back(); return; }
+  nav(fallback);
+}
 let pendingAdd = false;
 if (!history.state || !(history.state.root || history.state.page || history.state.modal || history.state.sub)) {
   const start = location.hash;
   history.replaceState({ root: true }, '', HOME);
-  history.pushState({ page: true }, '', HOME);
+  trail = []; saveTrail();
   if (start === '#/add') pendingAdd = true;   // widget "+" / home-screen shortcut: Quick add over Budget
-  else if (start && start !== HOME && start !== '#/' && start !== '#') history.pushState({ sub: true }, '', start);
+  else if (start && start !== HOME && start !== '#/' && start !== '#') {   // opened on a screen (a notification): Budget under it
+    history.pushState({ page: true, depth: 0 }, '', HOME);
+    history.pushState({ sub: true, depth: 1 }, '', start); trail = [start]; saveTrail();
+  }
 }
+// The Budget entry above the first one is added at your first tap, not while the app loads: Android
+// skips back over entries added without a tap, and with nothing left to go back to it closes the app
+// instead of letting Back on Budget say "press back again to exit".
+const arm = () => { if (history.state && history.state.root) history.pushState({ page: true, depth: 0 }, '', location.hash || HOME); };
+for (const ev of ['click', 'touchend', 'keydown']) document.addEventListener(ev, arm, true);
+const pathOf = h => (h || '').split('?')[0];
 /** Every in-app screen change goes through here (links included, see the click handler below). */
 export function nav(h) {
   if (h === '#/add') { pendingAdd = true; dispatchEvent(new Event('budget:add')); return; }   // a sheet, not a screen
   if (!h || h === location.hash) return;
-  if (h === HOME && history.state && history.state.sub) { history.back(); return; }   // reuse the Budget entry
-  const onHome = (location.hash || HOME) === HOME && !(history.state && history.state.sub);
-  if (onHome && h !== HOME) history.pushState({ sub: true }, '', h);
-  else history.replaceState(h === HOME ? { page: true } : { sub: true }, '', h);
+  if (history.state && history.state.root) {   // nothing tapped yet (opened from a notification): Budget first
+    if (h === HOME) return;
+    history.pushState({ page: true, depth: 0 }, '', HOME);
+  }
+  const d = depthNow();
+  if (h === HOME) {
+    if (d > 0) history.go(-d);   // walk back to the Budget entry (no new entry)
+    else history.replaceState({ page: true, depth: 0 }, '', HOME), dispatchEvent(new HashChangeEvent('hashchange'));
+    return;
+  }
+  const at = trail.slice(0, d).indexOf(h);
+  if (at >= 0) { history.go(at + 1 - d); return; }   // already in the trail: go back to it
+  if (d > 0 && pathOf(h) === pathOf(location.hash)) history.replaceState({ sub: true, depth: d }, '', h);   // same screen, other options
+  else { history.pushState({ sub: true, depth: d + 1 }, '', h); trail = [...trail.slice(0, d), h]; saveTrail(); }
   dispatchEvent(new HashChangeEvent('hashchange'));
   // A new screen starts at its top (the page itself scrolls, so the last screen's position would carry over).
   requestAnimationFrame(() => { scrollTo(0, 0); document.body.scrollTop = 0; document.documentElement.scrollTop = 0; });
@@ -124,7 +167,9 @@ document.addEventListener('click', e => {
   const a = e.target.closest && e.target.closest('a[href^="#/"]');
   if (!a || a.target) return;
   e.preventDefault();
-  nav(a.getAttribute('href'));
+  // A screen's ‹ back button works like Android's Back (its href is where to go if there's no trail).
+  if (a.hasAttribute('data-back') || a.getAttribute('aria-label') === 'Back') goBack(a.getAttribute('href'));
+  else nav(a.getAttribute('href'));
 });
 // Warn before closing the tab while changes are still unsynced.
 addEventListener('beforeunload', e => { if (syncState.pending > 0 && !window.__appReloading) { e.preventDefault(); e.returnValue = ''; } });

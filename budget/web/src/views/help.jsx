@@ -141,7 +141,7 @@ export const HELP = {
   tips: { title: 'Tips', body: <>
     <p>When you pay with a card, the bank first shows the amount <b>before the tip</b>. The restaurant sends the final amount later, sometimes a week later, and then the bank's amount goes up.</p>
     <p>Type the amount on the receipt (what the bank shows now), then pick a tip. Your budget counts the <b>full amount</b> straight away, because that money is spent.</p>
-    <p>Until the bank catches up, the purchase shows <b>tip pending</b>, and the account says what your bank shows for now, so a difference never looks like a mistake.</p>
+    <p>Until the bank catches up, the purchase shows <b>+ tip waiting</b> under its amount, and the account says what your bank shows for now, so a difference never looks like a mistake.</p>
     <p>When the bank shows the final amount, tap the circle on the purchase in the account. If the bank posted a different amount, type it and the purchase and its category update. Tips still waiting after 10 days show in Money check.</p>
   </> },
 

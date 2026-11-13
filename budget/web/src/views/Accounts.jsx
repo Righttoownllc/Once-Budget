@@ -290,10 +290,11 @@ export function AccountDetail({ data, id }) {
                     ? <span class="clr c2" title="Reconciled">R</span>
                     : <button class={'clr ' + (t.cleared === 1 ? 'c1' : '')} aria-label={t.cleared ? 'Cleared, tap to unclear' : 'Tap to mark cleared'} onClick={e => { if (!t.cleared && tipWaiting(t)) return setTipAsk(t); if (!t.cleared) pop(e.currentTarget); put('transactions', { ...t, cleared: t.cleared ? 0 : 1 }); }}>{t.cleared ? '✓' : ''}</button>}
                 <div class="main" onClick={() => sel ? toggleSel(t.id) : ui.open({ tx: t })}>
-                  <div class="p">{other ? `${t.amount < 0 ? (liability ? 'Payment to' : 'Transfer to') : 'Payment from'} ${acctName[other.account_id] || '?'}` : t.payee || '(no payee)'}{t.split_id ? <span class="pill" style="margin-left:6px">split</span> : null}{tipWaiting(t) ? <span class="pill amber" style="margin-left:6px" title={`Bank shows ${fmt(Math.abs(t.amount + t.tip_pending))} until the tip posts`}>tip pending</span> : null}</div>
+                  <div class="p">{other ? `${t.amount < 0 ? (liability ? 'Payment to' : 'Transfer to') : 'Payment from'} ${acctName[other.account_id] || '?'}` : t.payee || '(no payee)'}{t.split_id ? <span class="pill" style="margin-left:6px">split</span> : null}</div>
                   <div class="s">{sort !== 'date' ? `${dayLabel(t.date)} · ` : ''}{other ? (t.category_id ? `${catName[t.category_id]} · loan payment` : other.category_id ? `Loan payment · from ${catName[other.category_id]}` : 'Transfer · no budget effect') : t.category_id ? catName[t.category_id] || 'Uncategorized' : t.amount > 0 ? 'Ready to assign' : 'Uncategorized'}{t.memo ? ` · ${t.memo}` : ''}</div>
                 </div>
-                <span class={'money ' + (t.amount > 0 ? 'pos' : '')} style="font-weight:600" onClick={() => sel ? toggleSel(t.id) : ui.open({ tx: t })}>{t.amount > 0 ? '+' : ''}{fmt(t.amount)}</span>
+                <span class={'money txamt ' + (t.amount > 0 ? 'pos' : '')} style="font-weight:600" onClick={() => sel ? toggleSel(t.id) : ui.open({ tx: t })}>{t.amount > 0 ? '+' : ''}{fmt(t.amount)}
+                  {tipWaiting(t) ? <span class="tipwait" title={`Your bank shows ${fmt(Math.abs(t.amount + t.tip_pending))} until the tip posts`}>+ tip waiting</span> : null}</span>
                 {multiUser && t.created_by && (() => { const w = who(t.created_by); return (
                   <button type="button" class={'who' + (w.color ? ' tinted' : '')} style={w.color ? `background:${w.color}` : ''} aria-label={`Entered by ${w.name}`}
                     onClick={e => { e.stopPropagation(); ui.toast(`Entered by ${w.name} · ${stampLabel(t)}`, { plain: true }); }}>{w.initials}</button>

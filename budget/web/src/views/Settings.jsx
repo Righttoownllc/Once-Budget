@@ -79,7 +79,7 @@ export function Settings({ data, section }) {
   // Wide screens: the list stays on the left and the chosen page (General to start) fills the right.
   const wide = useWide();
   const sec = SECTIONS.find(x => x.id === section) || (wide ? SECTIONS[0] : null);
-  const back = <a href="#/more" class="round" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:22px;background:rgba(255,255,255,.12);color:#fff;text-decoration:none;font-size:22px" aria-label="Settings">‹</a>;
+  const back = <a href="#/more" data-back class="round" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:22px;background:rgba(255,255,255,.12);color:#fff;text-decoration:none;font-size:22px" aria-label="Settings">‹</a>;
   const top = sec
     ? <div class="row">{back}<div class="col" style="flex:1;margin-left:12px"><span class="eyebrow">Settings</span><span class="title">{sec.title}</span></div></div>
     : <div class="col"><span class="eyebrow">Once Budget</span><span class="title">Settings</span></div>;

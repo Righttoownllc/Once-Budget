@@ -559,9 +559,9 @@ function CategoryRow({ view = 'list', showGroup = false, c, month, open, picked,
     <div class={'cat ' + view + (open ? ' open' : '') + (picked ? ' picked' : '') + (pour ? ' pour' : '')} id={'cat-' + c.id}>
         <div class="crow" onClick={onToggle}>
           <span class="n"><span class="nline"><Icon data={data} c={c} /><span class="nm">{c.name}</span>{overPlan(c) > 0 && <span class="pill overplan" title={`Spent ${fmt(spentOf(c))} of ${fmt(c.target)} planned`}>▲</span>}{c.target > 0 && goalNeed(c, month) === 0 && !overPlan(c) && <span class="pill">✓</span>}</span>{showGroup && <span class="grp">{c.group_name}</span>}</span>
-          <span class="a money">{fmt(c.assigned)}</span>
-          <Roll class={'s money ' + (over ? 'neg' : '')} value={spent} />
-          <span><Roll class={'av money ' + avCls} value={c.available} /></span>
+          <span class={'a money' + (long(c.assigned) ? ' long' : '')}>{fmt(c.assigned)}</span>
+          <Roll class={'s money ' + (over ? 'neg' : '') + (long(spent) ? ' long' : '')} value={spent} />
+          <span><Roll class={'av money ' + avCls + (long(c.available) ? ' long' : '')} value={c.available} /></span>
           <div class={'thin ' + (over ? 'over' : '')}><i style={`width:${over ? 100 : pct}%`} /></div>
         </div>
       {view === 'list' && extra.length > 0 && <div class={'head ' + (over ? 'neg' : '')} onClick={onToggle}>{extra}</div>}
@@ -788,6 +788,9 @@ function BorrowNote({ data, month, c }) {
     </div>
   );
 }
+
+/** $10,000 and up: drawn a little smaller so a category's three amounts never run into each other. */
+const long = cents => Math.abs(cents) >= 1000000;
 
 /** How this month's spending in a category was paid: credit cards (each) versus cash or debit. */
 function PaidWith({ data, month, c }) {
